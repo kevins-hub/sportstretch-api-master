@@ -1,5 +1,11 @@
 {
     "jwtPrivateKey": "",
     "port": 3000,
-    "connectionString": ""
+    "bucket": "sportstretch-test",
+    "squareupClientId": "sandbox-sq0idb-o1QaVYJRHFhlzde6iiJFkA",
+    "squareupClientSecret": "sandbox-sq0csb-Hv6hK8MqMeGDsSqr7tN0oknbnT5ToPRBasGt7XskHe0",
+    "squareupUri": "https://connect.squareupsandbox.com",
+    "environment": "development",
+    "adminLocationId": "LPQ2W6BNV4XMB",
+    "connectionString": "postgres://kcmlqwrybqekze:5eeae1d81bebec509b377b83ceff0e8c3df20b23f55d0cb8580ca287ab039cb2@ec2-3-233-77-220.compute-1.amazonaws.com:5432/d89nc0uljbg2j2"
 }

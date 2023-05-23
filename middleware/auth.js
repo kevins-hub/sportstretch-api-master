@@ -3,6 +3,9 @@ const config = require('config');
 
 module.exports = function auth(req, res, next) {
     const token = req.header('x-auth-token');
+    console.warn("req = ", req);
+    console.warn("res = ", res);
+    console.warn("next = ", next);
     if (!token) return res.status(401).send('Access denied. No token provided.');
 
     try {
