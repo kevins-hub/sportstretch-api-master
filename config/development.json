@@ -1,5 +1,5 @@
 {
-    "jwtPrivateKey": "sportstretch_jwtPrivateKey",
+    "jwtPrivateKey": "kkkkk.kkkkk.lllll",
     "port": 3000,
     "connectionString": "postgres://kcmlqwrybqekze:5eeae1d81bebec509b377b83ceff0e8c3df20b23f55d0cb8580ca287ab039cb2@ec2-3-233-77-220.compute-1.amazonaws.com:5432/d89nc0uljbg2j2"
 }
