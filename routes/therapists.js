@@ -28,7 +28,7 @@ router.get("/enabled/online", auth, async (req, res) => {
         const state = req.query.state;
         if (state) {
             const stateName = us_states[state];
-            const therapists = await pool.query("SELECT * FROM tb_therapist WHERE enabled = 1 and status = true and state = $1", [stateName]);
+            const therapists = await pool.query(`SELECT * FROM tb_therapist WHERE enabled = 1 and status = true and state = '$1'`, [stateName]);
             res.status(200).json(therapists.rows);
         }
         else {
@@ -58,7 +58,7 @@ router.get("/requests", auth, async (req, res) =>{
     try{
     const requests = await pool.query("SELECT first_name, last_name, mobile, email, therapist_id FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id WHERE T.enabled = -1");
     res.status(200).json(requests.rows);
-    }
+    00}
     catch (err){
         console.log(err.message);
     }
