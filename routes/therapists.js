@@ -58,7 +58,7 @@ router.get("/requests", auth, async (req, res) =>{
     try{
     const requests = await pool.query("SELECT first_name, last_name, mobile, email, therapist_id FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id WHERE T.enabled = -1");
     res.status(200).json(requests.rows);
-    00}
+    }
     catch (err){
         console.log(err.message);
     }
