@@ -66,4 +66,35 @@ router.post("/", async (req, res) => {
     res.status(200).send(token);
 });
 
+router.put("/change-password", async (req, res) => {
+    const { email, newPassword, oldPassword } = req.body;
+
+    let user = await pool.query("SELECT * FROM tb_authorization WHERE email = $1", [email]);
+    const authId = user.rows[0].authorization_id;
+    const userRole = user.rows[0].role;
+    const dbOldPw = user.rows[0].password;
+    const pwMatches = await bcrypt.compare(oldPassword, dbOldPw);
+
+    if (!pwMatches) return res.status(400).send('Invalid email or password.');
+
+    const salt = await bcrypt.genSalt(10);
+    const newHashed = await bcrypt.hash(newPassword, salt);
+
+    if (userRole === 'athlete') {
+        const athlete = await pool.query("UPDATE tb_athlete SET password = $1 WHERE authId = $2", [newHashed, authId]);
+        return res.status(200).json({
+            email: athelete.rows[0].email,
+            status: "success"
+        })
+    }
+    
+    if (userRole === 'therapist') {
+        const therapist = await pool.query("UPDATE tb_therapist SET password = $1 WHERE authId = $2", [newHashed, authId]);
+        return res.status(200).json({
+            email: therapist.rows[0].email,
+            status: "success"
+        })
+    }   
+});
+
 module.exports = router;
