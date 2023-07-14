@@ -97,7 +97,10 @@ router.put("/change-password", async (req, res) => {
             email: therapist.rows[0].email,
             status: "success"
         })
-    }   
+    }
+    console.warn("BADD REQUEST");
+    console.warn("userRolee = ", userRole);
+    return res.status(400).send('Bad request.');
 });
 
 module.exports = router;
