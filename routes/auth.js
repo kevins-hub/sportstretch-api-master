@@ -74,12 +74,14 @@ router.put("/change-password", async (req, res) => {
     const authId = user.rows[0].authorization_id;
     const userRole = user.rows[0].role;
     const dbOldPw = user.rows[0].password;
-    const pwMatches = await bcrypt.compare(oldPassword, dbOldPw);
+    //const pwMatches = await bcrypt.compare(oldPassword, dbOldPw);
+    
 
-    if (!pwMatches) return res.status(400).send('Invalid email or password.');
+    //if (!pwMatches) return res.status(400).send('Invalid email or password.');
 
     const salt = await bcrypt.genSalt(10);
     const newHashed = await bcrypt.hash(newPassword, salt);
+    
 
     if (userRole === 'athlete') {
         const athlete = await pool.query("UPDATE tb_athlete SET password = $1 WHERE authId = $2", [newHashed, authId]);
