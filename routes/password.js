@@ -44,7 +44,6 @@ router.put("/change-password", async (req, res) => {
         const athlete = await pool.query("UPDATE tb_authorization SET password = $1 WHERE authorization_id = $2", [newHashed, authId]);
         console.warn("athlete = ", athlete);
         return res.status(200).json({
-            email: athlete.rows[0].email,
             status: "success"
         })
     }
@@ -54,7 +53,6 @@ router.put("/change-password", async (req, res) => {
         const therapist = await pool.query("UPDATE tb_authorization SET password = $1 WHERE authorization_id = $2", [newHashed, authId]);
         console.warn("therapist = ", therapist);
         return res.status(200).json({
-            email: therapist.rows[0].email,
             status: "success"
         })
     }
