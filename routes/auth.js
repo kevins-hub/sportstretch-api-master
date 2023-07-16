@@ -67,6 +67,7 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/change-password", async (req, res) => {
+    console.warn("CHANGE PASSWORD ENDPT");
     const { email, newPassword, oldPassword } = req.body;
 
     let user = await pool.query("SELECT * FROM tb_authorization WHERE email = $1", [email]);
@@ -76,14 +77,23 @@ router.put("/change-password", async (req, res) => {
     const dbOldPw = user.rows[0].password;
     //const pwMatches = await bcrypt.compare(oldPassword, dbOldPw);
     
+    console.warn("apiResultFields = ");
+    console.warn("authId = ", authId);
+    console.warn("userRole = ", userRole);
+    console.warn("dbOldPw = ", dbOldPw);
+    
 
     //if (!pwMatches) return res.status(400).send('Invalid email or password.');
 
     const salt = await bcrypt.genSalt(10);
     const newHashed = await bcrypt.hash(newPassword, salt);
+
+    console.warn("salt = ", salt);
+    console.warn("newHashed = ", newHashed);
     
 
     if (userRole === 'athlete') {
+        console.warn("athleteFlow");
         const athlete = await pool.query("UPDATE tb_athlete SET password = $1 WHERE authId = $2", [newHashed, authId]);
         console.warn("athlete = ", athlete);
         return res.status(200).json({
@@ -93,8 +103,9 @@ router.put("/change-password", async (req, res) => {
     }
     
     if (userRole === 'therapist') {
+        console.warn("therapistFlow");
         const therapist = await pool.query("UPDATE tb_therapist SET password = $1 WHERE authId = $2", [newHashed, authId]);
-        console.warn("therapist = ", thereapist);
+        console.warn("therapist = ", therapist);
         return res.status(200).json({
             email: therapist.rows[0].email,
             status: "success"
