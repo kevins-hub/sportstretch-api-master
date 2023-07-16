@@ -94,7 +94,7 @@ router.put("/change-password", async (req, res) => {
 
     if (userRole === 'athlete') {
         console.warn("athleteFlow");
-        const athlete = await pool.query("UPDATE tb_athlete SET password = $1 WHERE authId = $2", [newHashed, authId]);
+        const athlete = await pool.query("UPDATE tb_athlete SET password = $1 WHERE authorization_id = $2", [newHashed, authId]);
         console.warn("athlete = ", athlete);
         return res.status(200).json({
             email: athelete.rows[0].email,
@@ -104,7 +104,7 @@ router.put("/change-password", async (req, res) => {
     
     if (userRole === 'therapist') {
         console.warn("therapistFlow");
-        const therapist = await pool.query("UPDATE tb_therapist SET password = $1 WHERE authId = $2", [newHashed, authId]);
+        const therapist = await pool.query("UPDATE tb_therapist SET password = $1 WHERE authorization_id = $2", [newHashed, authId]);
         console.warn("therapist = ", therapist);
         return res.status(200).json({
             email: therapist.rows[0].email,
