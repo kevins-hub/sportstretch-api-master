@@ -6,6 +6,7 @@ const bookings = require("./routes/bookings");
 const ratings = require("./routes/ratings");
 const register = require("./routes/register");
 const auth = require("./routes/auth");
+const password = require("./routes/password");
 const expoPushTokens = require("./routes/expoPushTokens");
 const notifications = require("./routes/notifications");
 
@@ -15,6 +16,7 @@ app.use("/bookings", bookings);
 app.use("/ratings", ratings);
 app.use("/register", register);
 app.use("/auth", auth);
+app.use("/password", password);
 app.use("/expoPushTokens", expoPushTokens);
 app.use("/notifications", notifications);
 
