@@ -20,7 +20,7 @@ router.put("/change-password", async (req, res) => {
     const authId = user.rows[0].authorization_id;
     const userRole = user.rows[0].role;
     const dbOldPw = user.rows[0].password;
-    const pwMatches = bcrypt.compare(oldPassword, dbOldPw);
+    const pwMatches = await bcrypt.compare(oldPassword, dbOldPw);
     console.warn("pwMatches = ", pwMatches);
 
     if (!pwMatches) return res.status(400).send('Invalid email or password.');
