@@ -54,7 +54,7 @@ router.put("/reset-password", async (req, res) => {
     const resetTokenDb = user.rows[0].pw_reset_token;
     if (resetToken !== resetTokenDb) return res.status(400).send("Not authorized to reset password.");
     const dateNow = new Date();
-    const pwExpDate = new Date(user.pw_reset_expiration);
+    const pwExpDate = new Date(user.rows[0].pw_reset_expiration);
     if ( dateNow > pwExpDate) return res.status(400).send("Reset token has expired. Please try your request again.");
 
     const salt = await bcrypt.genSalt(10);
