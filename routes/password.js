@@ -43,21 +43,6 @@ router.put("/change-password", async (req, res) => {
     return res.status(400).send('Bad request.');
 });
 
-router.get("/reset-auth", async (req, res) => {
-    const resetToken = req.query.pwResetToken;
-    const authId = req.query.authorizationId;
-
-    let user = await pool.query("SELECT * FROM tb_authorization WHERE authorization_id = $1", [authId]);
-    const resetTokenDb = user.rows[0].pw_reset_token;
-    if (resetToken !== resetTokenDb) return res.status(400).send("Not authorized to reset password.");
-    const dateNow = new Date();
-    const pwExpDate = new Date(user.rows[0].pw_reset_expiration);
-    if ( dateNow > pwExpDate) return res.status(400).send("Reset token has expired. Please try your request again.");
-    return res.status(200).json({
-        status: "success"
-    })
-});
-
 router.put("/reset-auth", async (req, res) => {
 
     const { resetToken, authId } = req.body;
