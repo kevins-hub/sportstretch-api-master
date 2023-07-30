@@ -85,7 +85,7 @@ router.put("/forgot-password", async (req, res) => {
     const authId = user.rows[0].authorization_id;
     const tokenValidDuration  = 5;
     let expiration = new Date();
-    expiration = expiration.setMinutes(expiration.getMinutes() + tokenValidDuration);
+    expiration = new Date(expiration.setMinutes(expiration.getMinutes() + tokenValidDuration));
     const resetToken = generateToken();
 
     // set reset token to user's entry in db
@@ -95,7 +95,8 @@ router.put("/forgot-password", async (req, res) => {
     // send token via email / text
 
     return res.status(200).json({
-        status: "success"
+        status: "success",
+        authorization_id: authId
     })
 });
 
