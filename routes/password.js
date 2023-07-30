@@ -16,7 +16,7 @@ const pool = new Pool({
 
 const generateToken = () => {
     // creates 5 digit token
-    return Math.random().toString(7).slice(2);
+    return Math.random().toString().slice(2, 7);
 }
 
 router.put("/change-password", async (req, res) => {
