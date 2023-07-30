@@ -53,7 +53,7 @@ router.put("/reset-auth", async (req, res) => {
     const pwExpDate = new Date(user.rows[0].pw_reset_expiration);
     if ( dateNow > pwExpDate) return res.status(400).send("Reset token has expired. Please try your request again.");
 
-    const clearToken = await pool.query("UPDATE tb_authorization SET pw_reset_token=null AND pw_reset_expiration=null WHERE authorization_id = $1", [authId]);
+    const clearToken = await pool.query("UPDATE tb_authorization SET pw_reset_token=null, pw_reset_expiration=null WHERE authorization_id = $1", [authId]);
 
     return res.status(200).json({
         status: "success"
