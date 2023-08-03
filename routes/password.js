@@ -26,6 +26,21 @@ const generateToken = () => {
     return Math.random().toString().slice(2, 7);
 }
 
+const sendSMS = async () => {
+    try {
+      // Replace 'from', 'to', and 'body' with your desired values
+      const message = await client.messages.create({
+        to: '+16262300122', // Recipient's phone number (e.g., +9876543210)
+        body: 'This is a test message from Twilio!' // SMS content
+      });
+  
+      console.log('SMS sent successfully.');
+      console.log('Message SID:', message.sid);
+    } catch (error) {
+      console.error('Error sending SMS:', error.message);
+    }
+  };
+
 router.put("/change-password", async (req, res) => {
     const { email, newPassword, oldPassword } = req.body;
 
@@ -116,19 +131,20 @@ router.put("/forgot-password", async (req, res) => {
     expiration = new Date(expiration.setMinutes(expiration.getMinutes() + tokenValidDuration));
 
     let serviceSid;
-    client.verify.v2.services
-        .create({friendlyName: 'SportStretch User Verify Service'})
-        .then(service => {
-            console.warn("service = ", service);
-            serviceSid = service.sid
-            client.verify.v2.services(serviceSid)
-            .verifications
-            .create({to: '+16262300122', channel: 'sms'})
-            .then(verification => {
-                console.warn("verification = ", verification);
-                console.log(verification.status);
-            });
-        });
+    // client.verify.v2.services
+    //     .create({friendlyName: 'SportStretch User Verify Service'})
+    //     .then(service => {
+    //         console.warn("service = ", service);
+    //         serviceSid = service.sid
+    //         client.verify.v2.services(serviceSid)
+    //         .verifications
+    //         .create({to: '+16262300122', channel: 'sms'})
+    //         .then(verification => {
+    //             console.warn("verification = ", verification);
+    //             console.log(verification.status);
+    //         });
+    //     });
+    sendSMS();
     
 
     const resetToken = generateToken();
