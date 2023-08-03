@@ -17,8 +17,6 @@ const pool = new Pool({
 // Your AccountSID and Auth Token from console.twilio.com
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-console.warn("accountSid = ", accountSid);
-console.warn("authToken = ", authToken);
 
 const client = require('twilio')(accountSid, authToken);
 
@@ -121,8 +119,9 @@ router.put("/forgot-password", async (req, res) => {
     client.verify.v2.services
         .create({friendlyName: 'SportStretch User Verify Service'})
         .then(service => {
-            serviceSid = service.sid
             console.warn("service = ", service);
+            serviceSid = service.sid
+
         });
     
     client.verify.v2.services(serviceSid)
