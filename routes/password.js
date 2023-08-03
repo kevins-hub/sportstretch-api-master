@@ -121,17 +121,16 @@ router.put("/forgot-password", async (req, res) => {
         .then(service => {
             console.warn("service = ", service);
             serviceSid = service.sid
-
+            client.verify.v2.services(serviceSid)
+            .verifications
+            .create({to: '+16262300122', channel: 'sms'})
+            .then(verification => {
+                console.warn("verification = ", verification);
+                console.log(verification.status);
+            });
         });
     
-    client.verify.v2.services(serviceSid)
-        .verifications
-        .create({to: '+16262300122', channel: 'sms'})
-        .then(verification => {
-            console.warn("verification = ", verification);
-            console.log(verification.status);
-        });
-        
+
     const resetToken = generateToken();
 
     // set reset token to user's entry in db
