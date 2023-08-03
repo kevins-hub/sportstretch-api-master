@@ -114,15 +114,20 @@ router.put("/forgot-password", async (req, res) => {
     const tokenValidDuration  = 5;
     let expiration = new Date();
     expiration = new Date(expiration.setMinutes(expiration.getMinutes() + tokenValidDuration));
+
     let serviceSid;
     client.verify.v2.services
         .create({friendlyName: 'SportStretch User Verify Service'})
-        .then(service => serviceSid = service.sid);
+        .then(service => {
+            serviceSid = service.sid
+            console.warn("service = ", service);
+        });
     
     client.verify.v2.services(serviceSid)
         .verifications
         .create({to: '+16262300122', channel: 'sms'})
         .then(verification => {
+            console.warn("verification = ", verification);
             console.log(verification.status);
         });
         
