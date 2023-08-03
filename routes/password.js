@@ -17,6 +17,8 @@ const pool = new Pool({
 // Your AccountSID and Auth Token from console.twilio.com
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
+console.warn("accountSid = ", accountSid);
+console.warn("authToken = ", authToken);
 
 const client = require('twilio')(accountSid, authToken);
 
