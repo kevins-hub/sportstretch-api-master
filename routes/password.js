@@ -14,6 +14,13 @@ const pool = new Pool({
 }
 );
 
+// Your AccountSID and Auth Token from console.twilio.com
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+const client = require('twilio')(accountSid, authToken);
+
+
 const generateToken = () => {
     // creates 5 digit token
     return Math.random().toString().slice(2, 7);
@@ -66,6 +73,27 @@ router.put("/reset-auth", async (req, res) => {
     })
 });
 
+router.put("/twilio-auth", async (req, res) => {
+    const { resetToken, serviceSid } = req.body;
+    client.verify.v2.services(serviceSid)
+      .verificationChecks
+      .create({to: '+16262300122', code: resetToken})
+      .then(verification_check => {
+        console.log(verification_check.status);
+        if (verification_check.status === "approved") {
+            return res.status(200).json({
+                status: "success"
+            })
+        } else {
+            return res.status(400).send("Invalid token");
+        }
+    });
+    // return res.status(200).json({
+    //     status: "success"
+    // })
+});
+
+
 router.put("/reset-password", async (req, res) => {
     const { newPassword, authId } = req.body;
     const salt = await bcrypt.genSalt(10);
@@ -86,11 +114,23 @@ router.put("/forgot-password", async (req, res) => {
     const tokenValidDuration  = 5;
     let expiration = new Date();
     expiration = new Date(expiration.setMinutes(expiration.getMinutes() + tokenValidDuration));
+    let serviceSid;
+    client.verify.v2.services
+        .create({friendlyName: 'SportStretch User Verify Service'})
+        .then(service => serviceSid = service.sid);
+    
+    client.verify.v2.services(serviceSid)
+        .verifications
+        .create({to: '+16262300122', channel: 'sms'})
+        .then(verification => {
+            console.log(verification.status);
+        });
+        
     const resetToken = generateToken();
 
     // set reset token to user's entry in db
-    await pool.query("UPDATE tb_authorization SET pw_reset_token = $1 WHERE authorization_id = $2", [resetToken, authId]);
-    await pool.query("UPDATE tb_authorization SET pw_reset_expiration = $1 WHERE authorization_id = $2", [expiration, authId]);
+    // await pool.query("UPDATE tb_authorization SET pw_reset_token = $1 WHERE authorization_id = $2", [resetToken, authId]);
+    // await pool.query("UPDATE tb_authorization SET pw_reset_expiration = $1 WHERE authorization_id = $2", [expiration, authId]);
 
     // send token via email / text
 
