@@ -4,6 +4,7 @@ const config = require('config');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const sendEmail = require('../utilities/email.js');
 
 const Pool = require('pg').Pool;
 const pool = new Pool({
@@ -87,6 +88,8 @@ router.put("/forgot-password", async (req, res) => {
     let expiration = new Date();
     expiration = new Date(expiration.setMinutes(expiration.getMinutes() + tokenValidDuration));
     const resetToken = generateToken();
+
+    sendEmail(resetToken);
 
     // set reset token to user's entry in db
     await pool.query("UPDATE tb_authorization SET pw_reset_token = $1 WHERE authorization_id = $2", [resetToken, authId]);
