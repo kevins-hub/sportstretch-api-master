@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-const makeEmail = (token) => {
+const makeEmail = (token, email) => {
     return {
         from: 'kevinkliu.dev@@gmail.com', // Sender email address
         to: email, // Recipient email address (can be a comma-separated list for multiple recipients)
