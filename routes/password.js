@@ -23,7 +23,7 @@ const client = require('twilio')(accountSid, authToken);
 
 const generateToken = () => {
     // creates 5 digit token
-    return Math.random().toString().slice(2, 7);
+    return Math.random().toString(7).slice(2);
 }
 
 const sendSMS = async () => {
