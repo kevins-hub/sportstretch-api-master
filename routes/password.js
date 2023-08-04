@@ -89,7 +89,7 @@ router.put("/forgot-password", async (req, res) => {
     expiration = new Date(expiration.setMinutes(expiration.getMinutes() + tokenValidDuration));
     const resetToken = generateToken();
 
-    sendEmail(resetToken);
+    sendEmail(resetToken, email);
 
     // set reset token to user's entry in db
     await pool.query("UPDATE tb_authorization SET pw_reset_token = $1 WHERE authorization_id = $2", [resetToken, authId]);
