@@ -10,19 +10,10 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Email options
-// const mailOptions = {
-//   from: 'kevinkliu.dev@@gmail.com', // Sender email address
-//   to: 'kevinliu428@gmail.com', // Recipient email address (can be a comma-separated list for multiple recipients)
-//   subject: 'Test Email', // Email subject
-//   text: 'This is a test email sent using Nodemailer!' // Email content (plain text)
-//   // You can also use 'html' key for sending HTML content in the email
-// };
-
 const makeEmail = (token) => {
     return {
         from: 'kevinkliu.dev@@gmail.com', // Sender email address
-        to: 'kevinliu428@gmail.com', // Recipient email address (can be a comma-separated list for multiple recipients)
+        to: email, // Recipient email address (can be a comma-separated list for multiple recipients)
         subject: 'One-time passcode', // Email subject
         text: `Your code is ${token}. Do not share under any circumstances` // Email content (plain text)
         // You can also use 'html' key for sending HTML content in the email
@@ -30,8 +21,8 @@ const makeEmail = (token) => {
 }
 
 // Send the email
-const sendEmail = (token) => {
-    const mailObj = makeEmail(token);
+const sendEmail = (token, email) => {
+    const mailObj = makeEmail(token, email);
     transporter.sendMail(mailObj, (error, info) => {
         if (error) {
           console.error('Error sending email:', error);
