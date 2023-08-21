@@ -21,10 +21,9 @@ const generateToken = () => {
 }
 
 router.put("/change-password", async (req, res) => {
-    const { email, newPassword, oldPassword } = req.body;
+    const { newPassword, oldPassword, authId } = req.body;
 
-    let user = await pool.query("SELECT * FROM tb_authorization WHERE email = $1", [email]);
-    const authId = user.rows[0].authorization_id;
+    let user = await pool.query("SELECT * FROM tb_authorization WHERE authorization_id = $1", [authId]);
     const userRole = user.rows[0].role;
     const dbOldPw = user.rows[0].password;
     const pwMatches = await bcrypt.compare(oldPassword, dbOldPw);
