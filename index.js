@@ -9,6 +9,7 @@ const auth = require("./routes/auth");
 const password = require("./routes/password");
 const expoPushTokens = require("./routes/expoPushTokens");
 const notifications = require("./routes/notifications");
+const contact = require("./routes/contact");
 
 app.use(express.json());
 app.use("/therapists", therapists);
@@ -19,6 +20,7 @@ app.use("/auth", auth);
 app.use("/password", password);
 app.use("/expoPushTokens", expoPushTokens);
 app.use("/notifications", notifications);
+app.use("/contact", contact);
 
 app.get("/" , (req, res)=>{
     res.send("Sportstretch server is running!");
