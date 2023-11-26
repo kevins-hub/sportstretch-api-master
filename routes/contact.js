@@ -38,3 +38,5 @@ router.put("/edit-contact", async (req, res) => {
         }
         return res.status(400).send('Bad request.');
 });
+
+module.exports = router;
