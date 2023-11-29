@@ -38,4 +38,21 @@ router.put("/edit-contact", async (req, res) => {
         return res.status(400).send('Bad request.');
 });
 
+// get contact info
+router.get("/get-contact/:id", async (req, res) => {
+    const authId = req.params.id;
+    let user = await pool.query("SELECT * FROM tb_authorization WHERE authorization_id = $1", [authId]);
+    const userRole = user.rows[0].role;
+    let contactInfo = null;
+    if (userRole === 'athlete') {
+        contactInfo = await pool.query("SELECT email, mobile FROM tb_authorization A JOIN tb_athlete B ON A.authorization_id = B.fk_authorization_id WHERE authorization_id = $1", [authId]);
+        return res.status(200).json(contactInfo.rows[0]);
+    }
+    if (userRole === 'therapist') {
+        contactInfo = await pool.query("SELECT email, mobile, apartment_no, street, city, state, zipcode FROM tb_authorization A JOIN tb_therapist B ON A.authorization_id = B.fk_authorization_id WHERE authorization_id = $1", [authId]);
+        return res.status(200).json(contactInfo.rows[0]);
+    }
+    return res.status(400).send('Bad request.');
+});
+
 module.exports = router;
