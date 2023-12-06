@@ -22,12 +22,12 @@ app.use("/expoPushTokens", expoPushTokens);
 app.use("/notifications", notifications);
 app.use("/contact", contact);
 
-app.get("/" , (req, res)=>{
-    res.send("Sportstretch server is running!");
-})
+app.get("/", (req, res) => {
+  res.send("Sportstretch server is running!");
+});
 
 const port = process.env.PORT || config.get("port");
 
 app.listen(port, () => {
- console.log("Server running on port " + port);
+  console.log("Server running on port " + port);
 });
