@@ -45,6 +45,17 @@ router.get("/enabled/online", auth, async (req, res) => {
   }
 });
 
+router.get("/states", auth, async (req, res) => {
+  try {
+    const states = await pool.query(
+      "SELECT DISTINCT state FROM tb_therapist WHERE enabled = 1 and status = true"
+    );
+    res.status(200).json(states.rows);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 router.put("/setAvailability/:id", auth, async (req, res) => {
   try {
     const therapist_id = parseInt(req.params.id, 10);
