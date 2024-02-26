@@ -1,6 +1,6 @@
 const express = require("express");
 const stripe = require("stripe")(
-  "sk_test_51OnV42DyUl485VKLn7tFkZJNwzOElPQhOnIpKRYvPzGrzawDTYVgX3sMpJkISY4WEwcoxuYHWGoMeFyvh6MUPMwE00gS61c5h8"
+  process.env.STRIPE_SECRET
 );
 const router = express.Router();
 
