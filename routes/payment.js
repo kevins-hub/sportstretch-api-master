@@ -1,6 +1,9 @@
 const express = require("express");
+// const stripe = require("stripe")(
+//   process.env.STRIPE_SECRET
+// );
 const stripe = require("stripe")(
-  process.env.STRIPE_SECRET
+  process.env.STRIPE_SECRET_TEST
 );
 const router = express.Router();
 
