@@ -11,11 +11,13 @@ const calculateOrderAmount = (body) => {
     // Replace this constant with a calculation of the order's amount
     // Calculate the order total on the server to prevent
     // people from directly manipulating the amount on the client
+    console.warn("body = ", body);
     const total = body.amount * 100;
     return total;
   };
 
 router.post("/create-payment-intent", async (req, res) => {
+  console.warn("req = ", req);
   const body = req.body;
   try {
     const paymentIntent = await stripe.paymentIntents.create({
