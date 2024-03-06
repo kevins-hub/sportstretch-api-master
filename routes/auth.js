@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
     };
   } else if (user.rows[0].role === "therapist") {
     const therapist = await pool.query(
-      "SELECT therapist_id, first_name, last_name, mobile, city, state, enabled, status, average_rating, street, apartment_no, license_infourl, profession, summary, hourly_rate, services FROM tb_therapist WHERE fk_authorization_id = $1",
+      "SELECT therapist_id, first_name, last_name, mobile, city, state, enabled, status, average_rating, street, apartment_no, license_infourl, profession, summary, hourly_rate, services, accepts_house_calls FROM tb_therapist WHERE fk_authorization_id = $1",
       [user.rows[0].authorization_id]
     );
     userObj = {
@@ -58,6 +58,7 @@ router.post("/", async (req, res) => {
       hourly_rate: therapist.rows[0].hourly_rate,
       services: therapist.rows[0].services,
       license_infourl: therapist.rows[0].license_infourl,
+      accepts_house_calls: therapist.rows[0].accepts_house_calls,
     };
   } else if (user.rows[0].role === "admin") {
     const athlete = await pool.query(
