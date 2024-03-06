@@ -46,11 +46,18 @@ router.post("/", async (req, res) => {
       first_name: therapist.rows[0].first_name,
       last_name: therapist.rows[0].last_name,
       mobile: therapist.rows[0].mobile,
+      street: therapist.rows[0].street,
+      apartment_no: therapist.rows[0].apartment_no,
       city: therapist.rows[0].city,
       state: therapist.rows[0].state,
       enabled: therapist.rows[0].enabled,
       status: therapist.rows[0].status,
       avg_rating: therapist.rows[0].average_rating,
+      profession: therapist.rows[0].profession,
+      summary: therapist.rows[0].summary,
+      hourly_rate: therapist.rows[0].hourly_rate,
+      services: therapist.rows[0].services,
+      license_infourl: therapist.rows[0].license_infourl,
     };
   } else if (user.rows[0].role === "admin") {
     const athlete = await pool.query(
