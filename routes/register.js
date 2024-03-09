@@ -52,6 +52,12 @@ router.post("/therapist", async (req, res) => {
     city,
     state,
     zipcode,
+    profession,
+    services,
+    summary,
+    hourlyRate,
+    acceptsHouseCalls,
+    licenseUrl,
   } = req.body;
 
   let user = await pool.query(
@@ -71,7 +77,7 @@ router.post("/therapist", async (req, res) => {
     [email, hashed, "therapist"]
   );
   const newTherapist = await pool.query(
-    "INSERT INTO tb_therapist (fk_authorization_id, first_name, last_name, mobile, apartment_no, street, city, state, zipcode, enabled, status, average_rating) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING therapist_id",
+    "INSERT INTO tb_therapist (fk_authorization_id, first_name, last_name, mobile, apartment_no, street, city, state, zipcode, enabled, status, average_rating, profession, summary, hourly_rate, services, accepts_house_calls, license_infourl) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING therapist_id",
     [
       user.rows[0].authorization_id,
       fname,
@@ -85,6 +91,12 @@ router.post("/therapist", async (req, res) => {
       enabled,
       status,
       avg_rating,
+      profession,
+      summary,
+      hourlyRate,
+      services,
+      acceptsHouseCalls,
+      licenseUrl,
     ]
   );
 
