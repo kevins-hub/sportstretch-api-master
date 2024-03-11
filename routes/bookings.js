@@ -37,10 +37,10 @@ router.get("/athlete/upcomingBookings", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
-    const { athlete_id, athlete_location, therapist_id, booking_time, hourly_rate, duration, total_cost, paid, status } = req.body;
+    const { athlete_id, athlete_location, therapist_id, booking_time, booking_date, hourly_rate, duration, total_cost, paid, status } = req.body;
     const newBooking = await pool.query(
-      "INSERT INTO tb_bookings (fk_athlete_id, athlete_location, fk_therapist_id, booking_time, hourly_rate, duration, total_cost, paid, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING bookings_id, booking_time",
-      [athlete_id, athlete_location, therapist_id, booking_time, hourly_rate, duration, total_cost, paid, status]
+      "INSERT INTO tb_bookings (fk_athlete_id, athlete_location, fk_therapist_id, booking_time, booking_date, hourly_rate, duration, total_cost, paid, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING bookings_id, booking_time",
+      [athlete_id, athlete_location, therapist_id, booking_time, booking_date, hourly_rate, duration, total_cost, paid, status]
     );
     res.status(201).send({
       bookings_id: newBooking.rows[0].bookings_id,
