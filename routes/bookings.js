@@ -126,8 +126,8 @@ router.get("/all", auth, async (req, res) => {
 
 router.get("/therapist/currentBookings", auth, async (req, res) => {
   try {
-    const therapistId = parseInt(req.query.therapistId, 10);
-    const date = req.query.date; // YYYY-MM-DD
+
+    const { therapistId, date } = req.body;  // date is YYYY-MM-DD
     const query = "SELECT * FROM tb_bookings WHERE fk_therapist_id=$1 AND booking_date=$2 AND confirmation_status=1";
 
    const currentBookings = await pool.query(query, [therapistId, date]);
