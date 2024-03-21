@@ -138,4 +138,45 @@ router.put("/toggle/:id", auth, async (req, res) => {
   }
 });
 
+// edit therapist endpoint
+router.put("/edit/:id", auth, async (req, res) => {
+  try {
+    const therapist_id = parseInt(req.params.id, 10);
+    const {
+      addressL1,
+      addressL2,
+      city,
+      state,
+      zipcode,
+      profession,
+      services,
+      summary,
+      hourlyRate,
+      acceptsHouseCalls,
+      licenseUrl,
+    } = req.body;
+
+    const updatedTherapist = await pool.query(
+      "UPDATE tb_therapist SET address_line_1 = $1, address_line_2 = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_url = $11 WHERE therapist_id = $12 RETURNING *",
+      [
+        addressL1,
+        addressL2,
+        city,
+        state,
+        zipcode,
+        profession,
+        services,
+        summary,
+        hourlyRate,
+        acceptsHouseCalls,
+        licenseUrl,
+        therapist_id,
+      ]
+    );
+    res.status(200).json(updatedTherapist.rows);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 module.exports = router;
