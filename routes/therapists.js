@@ -138,6 +138,21 @@ router.put("/toggle/:id", auth, async (req, res) => {
   }
 });
 
+// get therapist endpoint
+router.get("/:id", auth, async (req, res) => {
+  try {
+    const therapist_id = parseInt(req.params.id, 10);
+    const therapist = await pool.query(
+      "SELECT * FROM tb_therapist WHERE therapist_id = $1",
+      [therapist_id]
+    );
+    res.status(200).json(therapist.rows);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
+
 // edit therapist endpoint
 router.put("/edit/:id", auth, async (req, res) => {
   try {
