@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
     };
   } else if (user.rows[0].role === "therapist") {
     const therapist = await pool.query(
-      "SELECT therapist_id, first_name, last_name, mobile, city, state, enabled, status, average_rating, street, apartment_no, license_infourl, profession, summary, hourly_rate, services, accepts_house_calls FROM tb_therapist WHERE fk_authorization_id = $1",
+      "SELECT therapist_id, first_name, last_name, mobile, city, state, enabled, status, average_rating, street, apartment_no, zipcode, license_infourl, profession, summary, hourly_rate, services, accepts_house_calls FROM tb_therapist WHERE fk_authorization_id = $1",
       [user.rows[0].authorization_id]
     );
     userObj = {
@@ -50,6 +50,7 @@ router.post("/", async (req, res) => {
       apartment_no: therapist.rows[0].apartment_no,
       city: therapist.rows[0].city,
       state: therapist.rows[0].state,
+      zipcode: therapist.rows[0].zipcode,
       enabled: therapist.rows[0].enabled,
       status: therapist.rows[0].status,
       avg_rating: therapist.rows[0].average_rating,
