@@ -108,4 +108,32 @@ router.post("/therapist", async (req, res) => {
   });
 });
 
+// delete account endpoint
+// remove from tb_authorization and tb_athlete or tb_therapist
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const authId = parseInt(req.params.id, 10);
+    const user = await pool.query(
+      "SELECT role FROM tb_authorization WHERE authorization_id = $1",
+      [authId]
+    );
+    if (user.rows[0].role === "athlete") {
+      await pool.query("DELETE FROM tb_athlete WHERE fk_authorization_id = $1", [
+        authId,
+      ]);
+    } else if (user.rows[0].role === "therapist") {
+      await pool.query("DELETE FROM tb_therapist WHERE fk_authorization_id = $1", [
+        authId,
+      ]);
+    }
+    await pool.query("DELETE FROM tb_authorization WHERE authorization_id = $1", [
+      authId,
+    ]);
+    res.status(200).send("Account deleted.");
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
+
 module.exports = router;
