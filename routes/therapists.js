@@ -194,4 +194,20 @@ router.put("/edit/:id", auth, async (req, res) => {
   }
 });
 
+// edit business hours endpoint
+router.put("/edit-hours/:id", auth, async (req, res) => {
+  try {
+    const therapist_id = parseInt(req.params.id, 10);
+    const { business_hours } = req.body;
+
+    const updatedTherapist = await pool.query(
+      "UPDATE tb_therapist SET business_hours = $1 WHERE therapist_id = $2 RETURNING *",
+      [business_hours, therapist_id]
+    );
+    res.status(200).json(updatedTherapist.rows);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 module.exports = router;
