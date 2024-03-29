@@ -198,11 +198,11 @@ router.put("/edit/:id", auth, async (req, res) => {
 router.put("/edit-hours/:id", auth, async (req, res) => {
   try {
     const therapist_id = parseInt(req.params.id, 10);
-    const { business_hours } = req.body;
+    const { businessHours } = req.body;
 
     const updatedTherapist = await pool.query(
       "UPDATE tb_therapist SET business_hours = $1 WHERE therapist_id = $2 RETURNING *",
-      [business_hours, therapist_id]
+      [businessHours, therapist_id]
     );
     res.status(200).json(updatedTherapist.rows);
   } catch (err) {
