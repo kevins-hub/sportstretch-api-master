@@ -169,12 +169,11 @@ router.put("/edit/:id", auth, async (req, res) => {
       hourlyRate,
       acceptsHouseCalls,
       licenseUrl,
-      businessHours,
       acceptsInClinic,
     } = req.body;
 
     const updatedTherapist = await pool.query(
-      "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, business_hours = $12, accepts_in_clinic = $13 WHERE therapist_id = $14 RETURNING *",
+      "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12 WHERE therapist_id = $13 RETURNING *",
       [
         addressL1,
         addressL2,
@@ -187,7 +186,6 @@ router.put("/edit/:id", auth, async (req, res) => {
         hourlyRate,
         acceptsHouseCalls,
         licenseUrl,
-        businessHours,
         acceptsInClinic,
         therapist_id,
       ]
