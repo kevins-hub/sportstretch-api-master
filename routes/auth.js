@@ -89,4 +89,66 @@ router.post("/", async (req, res) => {
   res.status(200).send(token);
 });
 
+router.post("/refreshUser/:authId", async (req, res) => {
+  const authId = req.params.authId;
+  let user = await pool.query(
+    "SELECT role FROM tb_authorization WHERE authorization_id = $1",
+    [authId]
+  );
+  if (!user.rows[0]) return res.status(400).send("Invalid authorization id.");
+
+  let userObj = null;
+  if (user.rows[0].role === "athlete") {
+    const athlete = await pool.query(
+      "SELECT athlete_id, first_name, last_name, mobile FROM tb_athlete WHERE fk_authorization_id = $1",
+      [authId]
+    );
+    userObj = {
+      athlete_id: athlete.rows[0].athlete_id,
+      first_name: athlete.rows[0].first_name,
+      last_name: athlete.rows[0].last_name,
+      mobile: athlete.rows[0].mobile,
+    };
+  } else if (user.rows[0].role === "therapist") {
+    const therapist = await pool.query(
+      "SELECT therapist_id, first_name, last_name, mobile, city, state, enabled, status, average_rating, street, apartment_no, zipcode, license_infourl, profession, summary, hourly_rate, services, accepts_house_calls, business_hours, accepts_in_clinic FROM tb_therapist WHERE fk_authorization_id = $1",
+      [authId]
+    );
+    userObj = {
+      therapist_id: therapist.rows[0].therapist_id,
+      first_name: therapist.rows[0].first_name,
+      last_name: therapist.rows[0].last_name,
+      mobile: therapist.rows[0].mobile,
+      street: therapist.rows[0].street,
+      apartment_no: therapist.rows[0].apartment_no,
+      city: therapist.rows[0].city,
+      state: therapist.rows[0].state,
+      zipcode: therapist.rows[0].zipcode,
+      enabled: therapist.rows[0].enabled,
+      status: therapist.rows[0].status,
+      avg_rating: therapist.rows[0].average_rating,
+      profession: therapist.rows[0].profession,
+      summary: therapist.rows[0].summary,
+      hourly_rate: therapist.rows[0].hourly_rate,
+      services: therapist.rows[0].services,
+      license_infourl: therapist.rows[0].license_infourl,
+      accepts_house_calls: therapist.rows[0].accepts_house_calls,
+      business_hours: therapist.rows[0].business_hours,
+      accepts_in_clinic: therapist.rows[0].accepts_in_clinic,
+    };
+
+    const authResObj = {
+      role: user.rows[0].role,
+      authorization_id: user.rows[0].authorization_id,
+      userObj: userObj,
+    };
+  
+    const token = jwt.sign(
+      authResObj,
+      process.env.jwtPrivateKey || config.get("jwtPrivateKey")
+    );
+    res.status(200).send(token);
+  }
+});
+
 module.exports = router;
