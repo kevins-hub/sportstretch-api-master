@@ -10,6 +10,14 @@ const calculateOrderAmount = (body) => {
   return total;
 };
 
+const getStripeAccountId = async (therapist_id) => {
+  const therapist = await pool.query(
+    "SELECT stripe_account_id FROM tb_therapist WHERE therapist_id = $1",
+    [therapist_id]
+  );
+  return therapist.rows[0].stripe_account_id;
+}
+
 router.post("/create-payment-intent", async (req, res) => {
   const body = req.body;
   const totalAmount = calculateOrderAmount(body);
@@ -49,6 +57,23 @@ router.post("/register-stripe-account", async (req, res) => {
     });
   } catch (err) {
     console.log(err.message);
+  }
+});
+
+router.get("/generate-stripe-login-link/:id", async (req, res) => {
+  const therapist_id = parseInt(req.params.id, 10);
+  const stripe_account_id = getStripeAccountId(therapist_id);
+  if (!stripe_account_id) {
+    res.status(404).send("Stripe account not found for therapist.");
+  }
+  try {
+    const loginLink = await stripe.accounts.createLoginLink(stripe_account_id);
+    res.send({
+      url: loginLink.url,
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send("Error generating login link.");
   }
 });
 
