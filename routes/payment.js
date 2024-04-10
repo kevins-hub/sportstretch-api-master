@@ -62,7 +62,7 @@ router.post("/register-stripe-account", async (req, res) => {
 
 router.get("/generate-stripe-login-link/:id", async (req, res) => {
   const therapist_id = parseInt(req.params.id, 10);
-  const stripe_account_id = getStripeAccountId(therapist_id);
+  const stripe_account_id = await getStripeAccountId(therapist_id);
   if (!stripe_account_id) {
     res.status(404).send("Stripe account not found for therapist.");
   }
