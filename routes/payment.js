@@ -73,7 +73,7 @@ router.get("/generate-stripe-login-link/:id", async (req, res) => {
     });
   } catch (err) {
     console.log(err.message);
-    res.status(500).send("Error generating login link.");
+    res.status(500).send(`Error generating login link. Error: ${err.message}`);
   }
 });
 
