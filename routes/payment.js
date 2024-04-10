@@ -5,6 +5,14 @@ const express = require("express");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST);
 const router = express.Router();
 
+const Pool = require("pg").Pool;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || config.get("connectionString"),
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+
 const calculateOrderAmount = (body) => {
   const total = body.amount * 100;
   return total;
