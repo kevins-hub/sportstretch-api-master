@@ -32,7 +32,7 @@ router.post("/create-payment-intent", async (req, res) => {
   }
 });
 
-route.post("/register-stripe-account", async (req, res) => {
+router.post("/register-stripe-account", async (req, res) => {
   const body = req.body;
   try {
     const account = await stripe.accounts.create({
