@@ -59,12 +59,20 @@ router.post("/register-stripe-account", async (req, res) => {
         card_payments: { requested: true },
         transfers: { requested: true },
       },
-    }); 
+    });
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: 'sportstretch://profile',
+      return_url: 'sportstretch://profile',
+      type: 'account_onboarding',
+    });
     res.send({
       account: account,
+      accountLink: accountLink,
     });
   } catch (err) {
     console.log(err.message);
+    res.status(500).send(`Error registering Stripe account. Error: ${err.message}`);
   }
 });
 
