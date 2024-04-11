@@ -93,4 +93,26 @@ router.get("/generate-stripe-login-link/:id", async (req, res) => {
   }
 });
 
+router.get("/get-onboard-link/:id", async (req, res) => {
+  const therapist_id = parseInt(req.params.id, 10);
+  const stripe_account_id = await getStripeAccountId(therapist_id);
+  if (!stripe_account_id) {
+    res.status(404).send("Stripe account not found for therapist.");
+  }
+  try {
+    const accountLink = await stripe.accountLinks.create({
+      account: stripe_account_id,
+      refresh_url: 'https://example.com/refresh',
+      return_url: 'https://example.com/return',
+      type: 'account_onboarding',
+    });
+    res.send({
+      url: accountLink.url,
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send(`Error generating onboarding link. Error: ${err.message}`);
+  }
+});
+
 module.exports = router;
