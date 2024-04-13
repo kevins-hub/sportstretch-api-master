@@ -115,7 +115,7 @@ router.get("/get-onboard-link/:id", async (req, res) => {
   }
 });
 
-router.get("retrieve-stripe-account/:id", async (req, res) => {
+router.get("/retrieve-stripe-account/:id", async (req, res) => {
   const therapist_id = parseInt(req.params.id, 10);
   try {
     const stripe_account_id = await getStripeAccountId(therapist_id);
