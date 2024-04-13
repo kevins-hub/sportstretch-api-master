@@ -115,4 +115,19 @@ router.get("/get-onboard-link/:id", async (req, res) => {
   }
 });
 
+router.get("retrieve-stripe-account/:id", async (req, res) => {
+  const therapist_id = parseInt(req.params.id, 10);
+  try {
+    const stripe_account_id = await getStripeAccountId(therapist_id);
+    if (!stripe_account_id) {
+      res.status(404).send("Stripe account not found for therapist.");
+    }
+    const account = await stripe.accounts.retrieve(stripe_account_id);
+    res.send(account);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send(`Error retrieving Stripe account. Error: ${err.message}`);
+  }
+});
+
 module.exports = router;
