@@ -24,7 +24,7 @@ const getStripeAccountId = async (therapist_id) => {
     [therapist_id]
   );
   return therapist.rows[0].stripe_account_id;
-}
+};
 
 router.post("/create-payment-intent", async (req, res) => {
   const body = req.body;
@@ -32,19 +32,23 @@ router.post("/create-payment-intent", async (req, res) => {
   const platformFee = totalAmount * 0.1;
   const stripeAccountId = body.stripeAccountId;
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: totalAmount,
-      currency: "usd",
-      application_fee_amount: platformFee,
-      transfer_data: {
-        destination: stripeAccountId,
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: totalAmount,
+        currency: "usd",
+        application_fee_amount: platformFee,
+      },
+      {
+        stripeAccount: stripeAccountId,
       }
-    });
+    );
     res.send({
       clientSecret: paymentIntent.client_secret,
     });
   } catch (err) {
-    res.status(500).send(`Error creating payment intent. Error: ${err.message}`);
+    res
+      .status(500)
+      .send(`Error creating payment intent. Error: ${err.message}`);
   }
 });
 
@@ -53,7 +57,7 @@ router.post("/register-stripe-account", async (req, res) => {
   try {
     const account = await stripe.accounts.create({
       type: "express",
-      country: 'US',
+      country: "US",
       email: body.email,
       capabilities: {
         card_payments: { requested: true },
@@ -62,16 +66,18 @@ router.post("/register-stripe-account", async (req, res) => {
     });
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
-      refresh_url: 'https://example.com/refresh',
-      return_url: 'https://example.com/return',
-      type: 'account_onboarding',
+      refresh_url: "https://example.com/refresh",
+      return_url: "https://example.com/return",
+      type: "account_onboarding",
     });
     res.send({
       account: account,
       accountLink: accountLink,
     });
   } catch (err) {
-    res.status(500).send(`Error registering Stripe account. Error: ${err.message}`);
+    res
+      .status(500)
+      .send(`Error registering Stripe account. Error: ${err.message}`);
   }
 });
 
@@ -100,15 +106,17 @@ router.get("/get-onboard-link/:id", async (req, res) => {
     }
     const accountLink = await stripe.accountLinks.create({
       account: stripe_account_id,
-      refresh_url: 'https://example.com/refresh',
-      return_url: 'https://example.com/return',
-      type: 'account_onboarding',
+      refresh_url: "https://example.com/refresh",
+      return_url: "https://example.com/return",
+      type: "account_onboarding",
     });
     res.send({
       url: accountLink.url,
     });
   } catch (err) {
-    res.status(500).send(`Error generating onboarding link. Error: ${err.message}`);
+    res
+      .status(500)
+      .send(`Error generating onboarding link. Error: ${err.message}`);
   }
 });
 
@@ -122,7 +130,9 @@ router.get("/retrieve-stripe-account/:id", async (req, res) => {
     const account = await stripe.accounts.retrieve(stripe_account_id);
     res.send(account);
   } catch (err) {
-    res.status(500).send(`Error retrieving Stripe account. Error: ${err.message}`);
+    res
+      .status(500)
+      .send(`Error retrieving Stripe account. Error: ${err.message}`);
   }
 });
 
