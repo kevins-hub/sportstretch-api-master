@@ -23,7 +23,7 @@ router.post("/", auth, async (req, res) => {
     console.log("User registered for notifications: ", user);
     res.status(201).send();
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 

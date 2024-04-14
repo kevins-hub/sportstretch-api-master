@@ -24,7 +24,7 @@ router.put("/:id", auth, async (req, res) => {
       starrating: rating.rows[0].starrating,
     });
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -40,7 +40,7 @@ router.post("/", auth, async (req, res) => {
       starrating: starrating,
     });
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 

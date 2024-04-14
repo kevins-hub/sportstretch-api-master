@@ -19,7 +19,7 @@ router.get("/athlete/pastBookings", auth, async (req, res) => {
     const pastBookings = await pool.query(query, [athleteId]);
     res.status(200).json(pastBookings.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -31,7 +31,7 @@ router.get("/athlete/upcomingBookings", auth, async (req, res) => {
     const upcomingBookings = await pool.query(query, [athleteId]);
     res.status(200).json(upcomingBookings.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -47,7 +47,7 @@ router.post("/", auth, async (req, res) => {
       booking_time: newBooking.rows[0].booking_time,
     });
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -59,7 +59,7 @@ router.get("/therapist/pastBookings", async (req, res) => {
     const pastBookings = await pool.query(query, [therapistId]);
     res.status(200).json(pastBookings.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -71,7 +71,7 @@ router.get("/therapist/upcomingBookings", async (req, res) => {
     const upcomingBookings = await pool.query(query, [therapistId]);
     res.status(200).json(upcomingBookings.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -90,7 +90,7 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
       athlete_id: bookingStatus.rows[0].fk_athlete_id,
     });
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -109,7 +109,7 @@ router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
       athlete_id: bookingStatus.rows[0].fk_athlete_id,
     });
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -120,7 +120,7 @@ router.get("/all", auth, async (req, res) => {
     );
     res.status(200).json(allBookings.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -134,7 +134,7 @@ router.get("/therapist/currentBookings", auth, async (req, res) => {
     res.status(200).json(currentBookings.rows);
 
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 

@@ -44,7 +44,7 @@ router.post("/create-payment-intent", async (req, res) => {
       clientSecret: paymentIntent.client_secret,
     });
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Error creating payment intent. Error: ${err.message}`);
   }
 });
 
@@ -71,7 +71,6 @@ router.post("/register-stripe-account", async (req, res) => {
       accountLink: accountLink,
     });
   } catch (err) {
-    console.log(err.message);
     res.status(500).send(`Error registering Stripe account. Error: ${err.message}`);
   }
 });
@@ -88,7 +87,6 @@ router.get("/generate-stripe-login-link/:id", async (req, res) => {
       url: loginLink.url,
     });
   } catch (err) {
-    console.log(err.message);
     res.status(500).send(`Error generating login link. Error: ${err.message}`);
   }
 });
@@ -110,7 +108,6 @@ router.get("/get-onboard-link/:id", async (req, res) => {
       url: accountLink.url,
     });
   } catch (err) {
-    console.log(err.message);
     res.status(500).send(`Error generating onboarding link. Error: ${err.message}`);
   }
 });
@@ -125,7 +122,6 @@ router.get("/retrieve-stripe-account/:id", async (req, res) => {
     const account = await stripe.accounts.retrieve(stripe_account_id);
     res.send(account);
   } catch (err) {
-    console.log(err.message);
     res.status(500).send(`Error retrieving Stripe account. Error: ${err.message}`);
   }
 });
