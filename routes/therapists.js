@@ -20,7 +20,7 @@ router.get("/all", auth, async (req, res) => {
     );
     res.status(200).json(allTherapists.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -41,7 +41,7 @@ router.get("/enabled/online", auth, async (req, res) => {
       res.status(200).json(therapists.rows);
     }
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -52,7 +52,7 @@ router.get("/states", auth, async (req, res) => {
     );
     res.status(200).json(states.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -69,8 +69,7 @@ router.put("/setAvailability/:id", auth, async (req, res) => {
       availability_status: status.rows[0].status,
     });
   } catch (err) {
-    console.log(err.message);
-  }
+    res.status(500).send(`Internal Server Error: ${err}`);
 });
 
 router.get("/requests", auth, async (req, res) => {
@@ -80,7 +79,7 @@ router.get("/requests", auth, async (req, res) => {
     );
     res.status(200).json(requests.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -93,7 +92,7 @@ router.put("/approve/:id", auth, async (req, res) => {
     );
     res.status(200).json(approved.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -106,7 +105,7 @@ router.put("/disable/:id", auth, async (req, res) => {
     );
     res.status(200).json(denied.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -120,7 +119,7 @@ router.put("/toggle/:id", auth, async (req, res) => {
     );
     res.status(200).json(toggled.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -134,7 +133,7 @@ router.put("/toggle/:id", auth, async (req, res) => {
     );
     res.status(200).json(toggled.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -148,7 +147,7 @@ router.get("/:id", auth, async (req, res) => {
     );
     res.status(200).json(therapist.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -192,7 +191,7 @@ router.put("/edit/:id", auth, async (req, res) => {
     );
     res.status(200).json(updatedTherapist.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -208,7 +207,7 @@ router.put("/edit-hours/:id", auth, async (req, res) => {
     );
     res.status(200).json(updatedTherapist.rows);
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 

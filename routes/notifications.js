@@ -29,7 +29,7 @@ router.post("/notifyTherapist", auth, async (req, res) => {
 
     res.status(201).send();
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
@@ -49,7 +49,7 @@ router.post("/notifyAthlete", auth, async (req, res) => {
 
     res.status(201).send();
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
 
