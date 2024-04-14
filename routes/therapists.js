@@ -70,6 +70,7 @@ router.put("/setAvailability/:id", auth, async (req, res) => {
     });
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
+  }
 });
 
 router.get("/requests", auth, async (req, res) => {
@@ -150,7 +151,6 @@ router.get("/:id", auth, async (req, res) => {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
-
 
 // edit therapist endpoint
 router.put("/edit/:id", auth, async (req, res) => {
