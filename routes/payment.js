@@ -35,7 +35,7 @@ router.post("/create-payment-intent", async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: totalAmount,
       currency: "usd",
-      appication_fee_amount: platformFee,
+      application_fee_amount: platformFee,
       transfer_data: {
         destination: stripeAccountId,
       }
