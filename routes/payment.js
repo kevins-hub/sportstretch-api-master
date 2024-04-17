@@ -36,6 +36,7 @@ router.post("/create-payment-intent", async (req, res) => {
       {
         amount: totalAmount,
         currency: "usd",
+        payment_method_types: ['card'],
         application_fee_amount: platformFee,
       },
       {
