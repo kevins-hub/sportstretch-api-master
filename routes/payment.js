@@ -29,7 +29,7 @@ const getStripeAccountId = async (therapist_id) => {
 router.post("/create-payment-intent", async (req, res) => {
   const body = req.body;
   const totalAmount = calculateOrderAmount(body);
-  const platformFee = totalAmount * 0.1;
+  const platformFee = (totalAmount * 0.1).toString();
   const stripeAccountId = body.stripeAccountId;
   console.warn("platformFee = ", platformFee);
   try {
