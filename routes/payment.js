@@ -27,6 +27,9 @@ const getStripeAccountId = async (therapist_id) => {
 };
 
 router.post("/create-payment-intent", async (req, res) => {
+  
+  console.warn("**** process.env.STRIPE_SECRET_TEST", process.env.STRIPE_SECRET_TEST);
+
   const body = req.body;
   const totalAmount = calculateOrderAmount(body);
   const platformFee = totalAmount * 0.1;
