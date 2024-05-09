@@ -44,6 +44,7 @@ router.post("/create-payment-intent", async (req, res) => {
         stripeAccount: stripeAccountId,
       }
     );
+    console.warn("payment intent = ", paymentIntent);
     res.send({
       paymentIntent: paymentIntent,
     });
