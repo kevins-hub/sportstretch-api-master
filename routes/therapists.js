@@ -88,7 +88,7 @@ router.put("/approve/:id", auth, async (req, res) => {
   try {
     const therapist_id = parseInt(req.params.id, 10);
     const approved = await pool.query(
-      "UPDATE tb_therapist SET enabled = true and status = true WHERE therapist_id=$1 RETURNING *",
+      "UPDATE tb_therapist SET enabled = 1,  status = true WHERE therapist_id=$1 RETURNING *",
       [therapist_id]
     );
     res.status(200).json(approved.rows);
