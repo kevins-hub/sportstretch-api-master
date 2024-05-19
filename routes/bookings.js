@@ -27,7 +27,7 @@ router.get("/athlete/upcomingBookings", auth, async (req, res) => {
   try {
     const athleteId = parseInt(req.query.athleteId, 10);
     const query =
-      "SELECT B.bookings_id, B.athlete_location, T.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.total_cost FROM tb_bookings B join tb_therapist T ON B.fk_therapist_id = T.therapist_id WHERE B.fk_athlete_id = $1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour') ORDER BY B.bookings_id DESC";
+      "SELECT B.bookings_id, B.athlete_location, T.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.booking_date, B.total_cost FROM tb_bookings B join tb_therapist T ON B.fk_therapist_id = T.therapist_id WHERE B.fk_athlete_id = $1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour') ORDER BY B.bookings_id DESC";
     const upcomingBookings = await pool.query(query, [athleteId]);
     res.status(200).json(upcomingBookings.rows);
   } catch (err) {
@@ -89,7 +89,7 @@ router.get("/therapist/upcomingBookings", async (req, res) => {
   try {
     const therapistId = parseInt(req.query.therapistId, 10);
     const query =
-      "SELECT  B.bookings_id,B.athlete_location, A.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.total_cost FROM tb_bookings B join tb_athlete A ON B.fk_athlete_id = A.athlete_id WHERE B.fk_therapist_id=$1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour')";
+      "SELECT  B.bookings_id,B.athlete_location, A.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.booking_date, B.total_cost FROM tb_bookings B join tb_athlete A ON B.fk_athlete_id = A.athlete_id WHERE B.fk_therapist_id=$1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour')";
     const upcomingBookings = await pool.query(query, [therapistId]);
     res.status(200).json(upcomingBookings.rows);
   } catch (err) {
