@@ -37,10 +37,32 @@ router.get("/athlete/upcomingBookings", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
-    const { athlete_id, athlete_location, therapist_id, booking_time, booking_date, hourly_rate, duration, total_cost, paid, status } = req.body;
+    const {
+      athlete_id,
+      athlete_location,
+      therapist_id,
+      booking_time,
+      booking_date,
+      hourly_rate,
+      duration,
+      total_cost,
+      paid,
+      status,
+    } = req.body;
     const newBooking = await pool.query(
       "INSERT INTO tb_bookings (fk_athlete_id, athlete_location, fk_therapist_id, booking_time, booking_date, hourly_rate, duration, total_cost, paid, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING bookings_id, booking_time",
-      [athlete_id, athlete_location, therapist_id, booking_time, booking_date, hourly_rate, duration, total_cost, paid, status]
+      [
+        athlete_id,
+        athlete_location,
+        therapist_id,
+        booking_time,
+        booking_date,
+        hourly_rate,
+        duration,
+        total_cost,
+        paid,
+        status,
+      ]
     );
     res.status(201).send({
       bookings_id: newBooking.rows[0].bookings_id,
@@ -113,6 +135,51 @@ router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
   }
 });
 
+// cancel booking endpoint
+// set status to CancelledRefunded if booking_time is more than 24 hours away and CancelledNoRefund if booking_time is less than 24 hours away
+router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
+  try {
+    const bookings_id = parseInt(req.params.id, 10);
+    const booking = await pool.query(
+      "SELECT booking_time FROM tb_bookings WHERE bookings_id = $1",
+      [bookings_id]
+    );
+    const booking_time = booking.rows[0].booking_time;
+    const now = new Date().getTime();
+    const diff = new Date(booking_time).getTime() - now;
+    const status = diff > 86400000 ? "CancelledRefunded" : "CancelledNoRefund";
+    const cancelled = await pool.query(
+      "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2 RETURNING bookings_id, status",
+      [status, bookings_id]
+    );
+    res.status(200).json({
+      bookings_id: cancelled.rows[0].bookings_id,
+      status: cancelled.rows[0].status,
+    });
+  } catch (err) {
+    res.status(500).send(`Internal Server Error: ${err}`);
+  }
+});
+
+// therapist cancel booking endpoint
+// set status to CancelledRefunded
+router.put("/therapist/cancelBooking/:id", auth, async (req, res) => {
+  try {
+    const bookings_id = parseInt(req.params.id, 10);
+    const status = "CancelledRefunded";
+    const cancelled = await pool.query(
+      "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2 RETURNING bookings_id, status",
+      [status, bookings_id]
+    );
+    res.status(200).json({
+      bookings_id: cancelled.rows[0].bookings_id,
+      status: cancelled.rows[0].status,
+    });
+  } catch (err) {
+    res.status(500).send(`Internal Server Error: ${err}`);
+  }
+});
+
 router.get("/all", auth, async (req, res) => {
   try {
     const allBookings = await pool.query(
@@ -128,15 +195,14 @@ router.get("/therapist/currentBookings", auth, async (req, res) => {
   try {
     const therapistId = parseInt(req.query.therapistId, 10);
     const date = req.query.date; // date is YYYY-MM-DD
-    const query = "SELECT * FROM tb_bookings WHERE fk_therapist_id=$1 AND booking_date=$2 AND confirmation_status=1";
+    const query =
+      "SELECT * FROM tb_bookings WHERE fk_therapist_id=$1 AND booking_date=$2 AND confirmation_status=1";
 
-   const currentBookings = await pool.query(query, [therapistId, date]);
+    const currentBookings = await pool.query(query, [therapistId, date]);
     res.status(200).json(currentBookings.rows);
-
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
 });
-
 
 module.exports = router;
