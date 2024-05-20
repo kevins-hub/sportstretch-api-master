@@ -183,7 +183,7 @@ router.put("/therapist/cancelBooking/:id", auth, async (req, res) => {
 router.get("/all", auth, async (req, res) => {
   try {
     const allBookings = await pool.query(
-      "SELECT booking_time, bookings_id, T.first_name as tfname, A.first_name as afname, T.last_name as tlname, A.last_name as alname FROM tb_bookings, tb_therapist T, tb_athlete A WHERE(tb_bookings.fk_athlete_id=A.athlete_id and tb_bookings.fk_therapist_id=T.therapist_id)"
+      "SELECT booking_time, bookings_id, fk_athlete_id, fk_therapist_id, T.first_name as tfname, A.first_name as afname, T.last_name as tlname, A.last_name as alname FROM tb_bookings, tb_therapist T, tb_athlete A WHERE(tb_bookings.fk_athlete_id=A.athlete_id and tb_bookings.fk_therapist_id=T.therapist_id)"
     );
     res.status(200).json(allBookings.rows);
   } catch (err) {
