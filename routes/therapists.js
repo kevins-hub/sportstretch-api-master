@@ -16,7 +16,7 @@ const pool = new Pool({
 router.get("/all", auth, async (req, res) => {
   try {
     const allTherapists = await pool.query(
-      "SELECT first_name, last_name, mobile, city, state, enabled, average_rating, therapist_id, email FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id WHERE T.enabled != -1"
+      "SELECT first_name, last_name, mobile, city, state, enabled, average_rating, therapist_id, email, license_infourl FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id WHERE T.enabled != -1"
     );
     res.status(200).json(allTherapists.rows);
   } catch (err) {
