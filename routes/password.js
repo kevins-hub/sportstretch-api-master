@@ -4,7 +4,7 @@ const config = require("config");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const sendEmail = require("../utilities/email.js");
+const emailService = require("../utilities/email.js");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
@@ -128,7 +128,7 @@ router.put("/forgot-password", async (req, res) => {
     );
     const resetToken = generateToken();
 
-    sendEmail(resetToken, email);
+    emailService.sendTokenEmail(resetToken, email);
 
     // set reset token to user's entry in db
     await pool.query(
