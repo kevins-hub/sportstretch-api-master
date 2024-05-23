@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 const makeEmail = (message, toEmail, subject) => {
   return {
     from: "kevinkliu.dev@@gmail.com", // Sender email address
-    to: email, // Recipient email address (can be a comma-separated list for multiple recipients)
+    to: toEmail, // Recipient email address (can be a comma-separated list for multiple recipients)
     subject: subject, // Email subject
     text: message, // Email content (plain text)
     // You can also use 'html' key for sending HTML content in the email
