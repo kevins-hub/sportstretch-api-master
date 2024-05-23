@@ -30,7 +30,7 @@ router.get("/enabled/online", auth, async (req, res) => {
     if (state) {
       const stateName = us_states[state];
       const therapists = await pool.query(
-        "SELECT * FROM tb_therapist WHERE stripe_account_id IS NOT NULL and enabled = 1 and status = true  and state = $1",
+        "SELECT * FROM tb_therapist WHERE enabled = 1 and status = true and state = $1",
         [stateName]
       );
       res.status(200).json(therapists.rows);
@@ -48,7 +48,7 @@ router.get("/enabled/online", auth, async (req, res) => {
 router.get("/states", auth, async (req, res) => {
   try {
     const states = await pool.query(
-      "SELECT DISTINCT state FROM tb_therapist WHERE enabled = 1 and status = true"
+      "SELECT DISTINCT state FROM tb_therapist WHERE stripe_account_id IS NOT NULL and enabled = 1 and status = true"
     );
     res.status(200).json(states.rows);
   } catch (err) {
