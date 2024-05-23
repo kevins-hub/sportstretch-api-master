@@ -15,7 +15,7 @@ router.get("/athlete/pastBookings", auth, async (req, res) => {
   try {
     const athleteId = parseInt(req.query.athleteId, 10);
     const query =
-      "SELECT B.bookings_id, T.first_name, B.booking_time, B.confirmation_status, R.starrating, T.therapist_id FROM tb_bookings B JOIN tb_therapist T ON B.fk_therapist_id = T.therapist_id LEFT JOIN tb_ratings R ON B.bookings_id = R.fk_bookings_id WHERE B.fk_athlete_id = $1 and booking_time < (CURRENT_TIMESTAMP - interval '1 hour') and B.confirmation_status = 1 ORDER BY B.bookings_id DESC";
+      "SELECT B.bookings_id, B.athlete_location, T.first_name, B.booking_time, B.confirmation_status, R.starrating, B.status, B.duration, B.booking_date, B.tota_cost, T.therapist_id FROM tb_bookings B JOIN tb_therapist T ON B.fk_therapist_id = T.therapist_id LEFT JOIN tb_ratings R ON B.bookings_id = R.fk_bookings_id WHERE B.fk_athlete_id = $1 and booking_time < (CURRENT_TIMESTAMP - interval '1 hour') and B.confirmation_status = 1 ORDER BY B.bookings_id DESC";
     const pastBookings = await pool.query(query, [athleteId]);
     res.status(200).json(pastBookings.rows);
   } catch (err) {
