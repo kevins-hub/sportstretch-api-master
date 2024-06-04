@@ -161,4 +161,21 @@ router.post("/refreshUser/:authId", async (req, res) => {
   }
 });
 
+
+// check email available endpoint
+router.post("/checkEmail", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await pool.query(
+      "SELECT email FROM tb_authorization WHERE email = $1",
+      [email]
+    );
+    if (user.rows[0]) return res.status(400).send("Email already registered.");
+    res.status(200).send("Email is available.");
+  } catch (err) {
+    return res.status(500).send(`Internal Server Error: ${err}`);
+  }
+});
+
 module.exports = router;
