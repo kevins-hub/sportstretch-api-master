@@ -1,14 +1,12 @@
 // Import Nodemailer
 const nodemailer = require("nodemailer");
 
-const customerServiceEmail = "sportstretchapp@gmail.com";
-
 // Create a transporter using SMTP transport (for Gmail)
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
-    user: "kevinkliu.dev@gmail.com", // Your Gmail email address
-    pass: "owzhodmblenxglaa", // Your Gmail password or an app-specific password
+    user: process.env.CUST_SERVICE_EMAIL, // Your Gmail email address
+    pass: process.env.CUST_SERVICE_PASSWORD, // Your Gmail password or an app-specific password
   },
 });
 
