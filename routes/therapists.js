@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const config = require("config");
 const auth = require("../middleware/auth");
-
 const us_states = require("../constants/us_states");
+const emailService = require("../utilities/email.js");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
@@ -91,7 +91,15 @@ router.put("/approve/:id", auth, async (req, res) => {
       "UPDATE tb_therapist SET enabled = 1,  status = true WHERE therapist_id=$1 RETURNING *",
       [therapist_id]
     );
+    const therapistsQueryResult = await pool.query(
+      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_therapist WHERE therapist_id = $1)",
+      [therapist_id]
+    );
     res.status(200).json(approved.rows);
+    emailService.sendTherapistApprovedEmail(
+      therapistsQueryResult.rows[0].email,
+    );
+    
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -104,7 +112,14 @@ router.put("/disable/:id", auth, async (req, res) => {
       "UPDATE tb_therapist SET enabled = 0 WHERE therapist_id=$1 RETURNING *",
       [therapist_id]
     );
+    const therapistQueryResult = await pool.query(
+      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_therapist WHERE therapist_id = $1)",
+      [therapist_id]
+    );
     res.status(200).json(denied.rows);
+    emailService.sendTherapistDeclinedEmail(
+      therapistQueryResult.rows[0].email,
+    );
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -118,21 +133,20 @@ router.put("/toggle/:id", auth, async (req, res) => {
       "UPDATE tb_therapist SET enabled = $1 WHERE therapist_id=$2 RETURNING *",
       [enabled, therapist_id]
     );
-    res.status(200).json(toggled.rows);
-  } catch (err) {
-    res.status(500).send(`Internal Server Error: ${err}`);
-  }
-});
-
-router.put("/toggle/:id", auth, async (req, res) => {
-  try {
-    const therapist_id = parseInt(req.params.id, 10);
-    const enabled = parseInt(req.body.enabled);
-    const toggled = await pool.query(
-      "UPDATE tb_therapist SET enabled = $1 WHERE therapist_id=$2 RETURNING *",
-      [enabled, therapist_id]
+    const therapistQueryResult = await pool.query(
+      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_therapist WHERE therapist_id = $1)",
+      [therapist_id]
     );
     res.status(200).json(toggled.rows);
+    if (enabled === 1) {
+      emailService.sendTherapistEnabledEmail(
+        therapistQueryResult.rows[0].email,
+      );
+    } else {
+      emailService.sendTherapistDisabledEmail(
+        therapistQueryResult.rows[0].email,
+      );
+    }
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
