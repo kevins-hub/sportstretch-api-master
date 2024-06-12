@@ -177,10 +177,6 @@ router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
       "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2 RETURNING bookings_id, status",
       [status, bookings_id]
     );
-    res.status(200).json({
-      bookings_id: cancelled.rows[0].bookings_id,
-      status: cancelled.rows[0].status,
-    });
     const athleteId = booking.rows[0].fk_athlete_id;
     const therapistId = booking.rows[0].fk_therapist_id;
     const therapistEmailQuery = await pool.query(
@@ -193,7 +189,11 @@ router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
       [athleteId]
     );
     const athleteFirstName = athleteFirstNameQuery.rows[0].first_name;
-    emailService.sendBookingCancelledEmail(therapistEmail, bookings_id, athleteFirstName, status === "CancelledRefunded" ? true : false);
+    res.status(200).json({
+      bookings_id: cancelled.rows[0].bookings_id,
+      status: cancelled.rows[0].status,
+    });
+    emailService.sendAthleteCancelledBookingEmail(therapistEmail, bookings_id, athleteFirstName, status === "CancelledRefunded" ? true : false);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
