@@ -139,7 +139,7 @@ const sendBookingConfirmationEmail = (email, bookingId, therapistName) => {
 
 const sendAthleteCancelledBookingEmail = (therapistEmail, bookingId, athleteFirstName, refunded) => {
   const message = `${athleteFirstName} has cancelled their appointment with you. ${refunded ? "Since the cancellation was within the allowed time-frame, they have been refunded." : "They have been charged a cancellation fee."}`;
-  const subject = `Appointment with ${athleteFirstname} (Booking ID ${bookingId}) Cancelled`;
+  const subject = `Appointment with ${athleteFirstName} (Booking ID ${bookingId}) Cancelled`;
   const mailObj = makeEmail(message, therapistEmail, subject);
   transporter.sendMail(mailObj, (error, info) => {
     if (error) {
