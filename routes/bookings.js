@@ -135,8 +135,8 @@ router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
     const reason = req.body.reason ? req.body.reason : "No reason provided";
     const confirmation_status = 0;
     const bookingStatus = await pool.query(
-      "UPDATE tb_bookings SET confirmation_status = $1, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $2 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
-      [confirmation_status, bookings_id]
+      "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
+      [confirmation_status, reason, bookings_id]
     );
     const athleteId = bookingStatus.rows[0].fk_athlete_id;
     const athleteEmailQuery = await pool.query(
@@ -152,6 +152,7 @@ router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
       bookings_id: bookingStatus.rows[0].bookings_id,
       confirmation_status: bookingStatus.rows[0].confirmation_status,
       confirmation_time: bookingStatus.rows[0].confirmation_time,
+      decline_reason: bookingStatus.rows[0].decline_reason,
       athlete_id: bookingStatus.rows[0].fk_athlete_id,
     });
     emailService.sendBookingDeclinedEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name, reason);
