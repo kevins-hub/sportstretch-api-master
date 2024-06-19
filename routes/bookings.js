@@ -125,7 +125,6 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
       confirmation_status: bookingStatus.rows[0].confirmation_status,
       confirmation_time: bookingStatus.rows[0].confirmation_time,
       athlete_id: bookingStatus.rows[0].fk_athlete_id,
-      accepted_booking_count: therapistAcceptBookingCountUpdate.rows[0].accepted_booking_count,
     });
     emailService.sendBookingConfirmationEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name);
 
