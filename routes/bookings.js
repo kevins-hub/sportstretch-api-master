@@ -116,11 +116,16 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
       "SELECT first_name FROM tb_therapist WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
       [bookingId]
     );
+    const therapistAcceptBookingCountUpdate = await pool.query(
+      "UPDATE tb_therapist SET accepted_booking_count = accepted_booking_count + 1 WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
+      [bookingId]
+    );
     res.status(200).json({
       bookings_id: bookingStatus.rows[0].bookings_id,
       confirmation_status: bookingStatus.rows[0].confirmation_status,
       confirmation_time: bookingStatus.rows[0].confirmation_time,
       athlete_id: bookingStatus.rows[0].fk_athlete_id,
+      accepted_booking_count: therapistAcceptBookingCountUpdate.rows[0].accepted_booking_count,
     });
     emailService.sendBookingConfirmationEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name);
 
