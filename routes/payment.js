@@ -13,6 +13,9 @@ const pool = new Pool({
   },
 });
 
+const stripeProcessingFee = 3.2; // $3.20
+const feePercentage = 0.15; // 15%
+
 const calculateOrderAmount = (body) => {
   const total = body.amount * 100;
   return total;
@@ -29,9 +32,8 @@ const getStripeAccountId = async (therapist_id) => {
 router.post("/create-payment-intent", async (req, res) => {
   const body = req.body;
   const totalAmount = calculateOrderAmount(body);
-  const platformFee = (totalAmount * 0.1).toString();
+  const platformFee = ((totalAmount * feePercentage)-stripeProcessingFee).toString();
   const stripeAccountId = body.stripeAccountId;
-  console.warn("platformFee = ", platformFee);
   try {
     const paymentIntent = await stripe.paymentIntents.create(
       {
