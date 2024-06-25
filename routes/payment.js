@@ -13,7 +13,7 @@ const pool = new Pool({
   },
 });
 
-const stripeProcessingFee = 3.2; // $3.20
+const stripeProcessingFee = 3200; // $3.20
 const feePercentage = 0.15; // 15%
 
 const calculateOrderAmount = (body) => {
@@ -34,6 +34,7 @@ router.post("/create-payment-intent", async (req, res) => {
   const totalAmount = calculateOrderAmount(body);
   const platformFee = ((totalAmount * feePercentage)-stripeProcessingFee).toString();
   const stripeAccountId = body.stripeAccountId;
+  console.warn("platformFee = ", platformFee);
   try {
     const paymentIntent = await stripe.paymentIntents.create(
       {
