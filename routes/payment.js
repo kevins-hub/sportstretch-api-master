@@ -13,7 +13,7 @@ const pool = new Pool({
   },
 });
 
-const stripeProcessingFee = 3200; // $3.20
+const stripeProcessingFee = 320; // $3.20
 const feePercentage = 0.15; // 15%
 
 const calculateOrderAmount = (body) => {
