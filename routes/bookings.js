@@ -138,20 +138,11 @@ router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
     const bookings_id = parseInt(req.params.id, 10);
     const reason = req.body.reason ? req.body.reason : "No reason provided";
     const confirmation_status = 0;
-    let bookingStatus;
     const suggestedBookingDateTime = req.body.suggestedBookingDateTime ? req.body.suggestedBookingDateTime : null;
-    if (reason === "Not available at that time") {
-      // insert suggestedBookingDateTime and reason into columns decline_reason and suggested_booking_time (TIMESTAMP) of tb_bookings;
-      bookingStatus = await pool.query(
-        "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP, suggested_booking_time = $3 WHERE bookings_id = $4 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
-        [confirmation_status, reason, suggestedBookingDateTime, bookings_id]
-      );
-    } else {
-      bookingStatus = await pool.query(
-        "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
-        [confirmation_status, reason, bookings_id]
-      );
-    }
+    const bookingStatus = await pool.query(
+      "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
+      [confirmation_status, reason, bookings_id]
+    );
     const athleteId = bookingStatus.rows[0].fk_athlete_id;
     const athleteEmailQuery = await pool.query(
       "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
