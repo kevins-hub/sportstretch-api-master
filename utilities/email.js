@@ -48,7 +48,7 @@ const sendReportIssueEmail = (issue, reporterEmail, bookingId) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
 const sendReportIssueConfirmationEmail = (issue, reporterEmail, bookingId) => {
   const issueMessage = `Thank you for reporting the issue: ${issue}. Our team is looking into it and we will reach out to you with updates in 3-5 business days.`;
@@ -62,7 +62,7 @@ const sendReportIssueConfirmationEmail = (issue, reporterEmail, bookingId) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
 // send email for when therapist is approved
 const sendTherapistApprovedEmail = (email) => {
@@ -78,7 +78,7 @@ const sendTherapistApprovedEmail = (email) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
 const sendTherapistDeclinedEmail = (email) => {
   const message = `We regret to inform you that your application to be a recovery specialist on Sport
@@ -93,7 +93,7 @@ const sendTherapistDeclinedEmail = (email) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
 const sendTherapistEnabledEmail = (email) => {
   const message = `Your Recovery Specialist account has been enabled. You can now accept bookings on the SportStretch app.`;
@@ -107,7 +107,7 @@ const sendTherapistEnabledEmail = (email) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
 const sendTherapistDisabledEmail = (email) => {
   const message = `Your Recovery Specialist account has been disabled. Please contact customer service for more information.`;
@@ -121,7 +121,7 @@ const sendTherapistDisabledEmail = (email) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
 const sendBookingConfirmationEmail = (email, bookingId, therapistName) => {
   const message = `Your booking with ${therapistName} has been confirmed. Please log in to the SportStretch app for more information.`;
@@ -135,10 +135,19 @@ const sendBookingConfirmationEmail = (email, bookingId, therapistName) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
-const sendAthleteCancelledBookingEmail = (therapistEmail, bookingId, athleteFirstName, refunded) => {
-  const message = `${athleteFirstName} has cancelled their appointment with you. ${refunded ? "Since the cancellation was within the allowed time-frame, they have been refunded." : "They have been charged a cancellation fee."}`;
+const sendAthleteCancelledBookingEmail = (
+  therapistEmail,
+  bookingId,
+  athleteFirstName,
+  refunded
+) => {
+  const message = `${athleteFirstName} has cancelled their appointment with you. ${
+    refunded
+      ? "Since the cancellation was within the allowed time-frame, they have been refunded."
+      : "They have been charged a cancellation fee."
+  }`;
   const subject = `Appointment with ${athleteFirstName} (Booking ID ${bookingId}) Cancelled`;
   const mailObj = makeEmail(message, therapistEmail, subject);
   transporter.sendMail(mailObj, (error, info) => {
@@ -149,9 +158,13 @@ const sendAthleteCancelledBookingEmail = (therapistEmail, bookingId, athleteFirs
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
-const sendTherapistCancelledBookingEmail = (athleteEmail, bookingId, therapistName) => {
+const sendTherapistCancelledBookingEmail = (
+  athleteEmail,
+  bookingId,
+  therapistName
+) => {
   const message = `${therapistName} has cancelled your appointment. You will be refunded in full.`;
   const subject = `Appointment with ${therapistName} (Booking ID ${bookingId}) Cancelled`;
   const mailObj = makeEmail(message, athleteEmail, subject);
@@ -163,10 +176,18 @@ const sendTherapistCancelledBookingEmail = (athleteEmail, bookingId, therapistNa
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
-const sendBookingDeclinedEmail = (email, bookingId, therapistName, reason) => {
-  const message = `${therapistName} has declined your booking request for the following reason: ${reason}  Please contact customer service for more information.`;
+const sendBookingDeclinedEmail = (
+  email,
+  bookingId,
+  therapistName,
+  reason,
+  suggestedBookingTime = null
+) => {
+  const message = !suggestedBookingTime
+    ? `${therapistName} has declined your booking request for the following reason: ${reason}  Please contact customer service for more information.`
+    : `${therapistName} has declined your booking request for the following reason: ${reason}  They have suggested a new booking time: ${suggestedBookingTime} Please log in to the SportStretch app to make an appointment with the new time.`;
   const subject = `Booking with ${therapistName} Declined (Booking ID: ${bookingId})`;
   const mailObj = makeEmail(message, email, subject);
   transporter.sendMail(mailObj, (error, info) => {
@@ -177,7 +198,7 @@ const sendBookingDeclinedEmail = (email, bookingId, therapistName, reason) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
 const sendBookingReminderEmail = (email, firstName) => {
   const message = `Hello ${firstName}, this is a reminder that you have one or multiple appointments scheduled for today Please log in to the SportStretch app for more information.`;
@@ -191,7 +212,7 @@ const sendBookingReminderEmail = (email, firstName) => {
       console.warn("Message ID:", info.messageId);
     }
   });
-}
+};
 
 module.exports = {
   sendTokenEmail,
