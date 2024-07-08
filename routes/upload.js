@@ -3,6 +3,8 @@ const router = express.Router();
 const config = require("config");
 const auth = require("../middleware/auth");
 const AWS = require("aws-sdk");
+const multer = require("multer");
+const multerS3 = require("multer-s3");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
