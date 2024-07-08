@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const config = require("config");
 const auth = require("../middleware/auth");
+const AWS = require("aws-sdk");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
