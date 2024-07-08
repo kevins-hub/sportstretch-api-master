@@ -5,6 +5,8 @@ const auth = require("../middleware/auth");
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { Upload } = require("@aws-sdk/lib-storage");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
@@ -16,25 +18,29 @@ const pool = new Pool({
 
 // Configure AWS SDK
 
+let s3Client;
+
 try {
-  AWS.config.update({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
-  });
+    const s3Client = new S3Client({
+        region: process.env.AWS_REGION,
+        credentials: {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        },
+        });
+      
   console.log("AWS SDK configured successfully.");
 } catch (error) {
   console.error("Error configuring AWS SDK: ", error);
 }
 
-const s3 = new AWS.S3();
 console.warn("s3 = ", s3);
 const bucketName = process.env.S3_BUCKET_NAME;
 
 // Set up multer and multer-s3 to handle file uploads
 const upload = multer({
   storage: multerS3({
-    s3,
+    s3: s3Client,
     bucket: bucketName,
     acl: "public-read",
     key: function (req, file, cb) {
