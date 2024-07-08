@@ -19,6 +19,7 @@ AWS.config.update({
   });
   
   const s3 = new AWS.S3();
+  console.warn("s3 = ", s3);
   const bucketName = process.env.S3_BUCKET_NAME;
 
 // Set up multer and multer-s3 to handle file uploads
