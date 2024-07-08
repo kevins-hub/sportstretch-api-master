@@ -21,14 +21,14 @@ const pool = new Pool({
 let s3Client;
 
 try {
-    const s3Client = new S3Client({
-        region: process.env.AWS_REGION,
-        credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        },
-        });
-      
+  s3Client = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+
   console.log("AWS SDK configured successfully.");
 } catch (error) {
   console.error("Error configuring AWS SDK: ", error);
