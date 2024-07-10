@@ -35,6 +35,7 @@ try {
 }
 
 const bucketName = process.env.S3_BUCKET_NAME;
+console.warn("bucketName = ", bucketName);
 
 // Set up multer and multer-s3 to handle file uploads
 const upload = multer({
