@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const config = require("config");
 const auth = require("../middleware/auth");
-const AWS = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
@@ -45,6 +44,7 @@ const upload = multer({
     bucket: bucketName,
     acl: "public-read",
     key: function (req, file, cb) {
+      console.warn("file = ", file);
       cb(
         null,
         `profile-pictures/${Date.now().toString()}-${file.originalname}`
@@ -64,6 +64,8 @@ router.post(
       return res.status(400).send("No file uploaded.");
     }
     const imageUrl = req.file.location;
+
+    console.warn("imageUrl = ", imageUrl);
 
     // Save imageUrl to your database in tb_authorization associated with the user (not shown)
     const imageUpload = await pool.query(
