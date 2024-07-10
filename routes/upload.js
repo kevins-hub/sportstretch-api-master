@@ -34,6 +34,7 @@ try {
   console.error("Error configuring AWS SDK: ", error);
 }
 
+console.warn("s3Client = ", s3Client);
 const bucketName = process.env.S3_BUCKET_NAME;
 console.warn("bucketName = ", bucketName);
 
@@ -51,6 +52,8 @@ const upload = multer({
     },
   }),
 });
+
+console.warn("upload = ", upload);
 
 router.post(
   "/profile-picture/:id",
