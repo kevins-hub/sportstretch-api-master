@@ -15,6 +15,7 @@ const payment = require("./routes/payment");
 const report = require("./routes/report");
 const emailService = require("./utilities/email.js");
 const upload = require("./routes/upload.js")
+const profilePicture = require("./routes/profilePicture.js")
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
@@ -37,6 +38,7 @@ app.use("/contact", contact);
 app.use("/payment", payment);
 app.use("/report", report);
 app.use("/upload", upload)
+app.use("/profilePicture", profilePicture);
 
 app.get("/", (req, res) => {
   res.send("Sportstretch server is running!");

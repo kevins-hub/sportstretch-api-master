@@ -60,6 +60,8 @@ router.post(
   upload.single("file"),
   auth,
   async (req, res) => {
+    const authId = req.params.id
+    console.warn("req = ", req);
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
     }
@@ -70,7 +72,7 @@ router.post(
     // Save imageUrl to your database in tb_authorization associated with the user (not shown)
     const imageUpload = await pool.query(
       "UPDATE tb_authorization SET profile_picture_url = $1 WHERE authorization_id = $2",
-      [imageUrl, req.params.id]
+      [imageUrl, authId]
     );
 
     res.status(201).json({ imageUrl });
