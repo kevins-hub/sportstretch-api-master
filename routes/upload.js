@@ -70,6 +70,7 @@ router.post(
   upload.single("file"),
   auth,
   async (req, res) => {
+    console.warn("req = ", req);
     const authId = req.params.id;
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
