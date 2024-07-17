@@ -41,7 +41,7 @@ const upload = multer({
     s3: s3Client,
     bucket: bucketName,
     acl: "public-read",
-    contentType: multerS3.AUTO_CONTENT_TYPE,
+    // contentType: multerS3.AUTO_CONTENT_TYPE,
     key: function (req, file, cb) {
       console.warn("file = ", file);
       cb(
