@@ -76,8 +76,8 @@ router.post(
     //   return res.status(400).send("No file uploaded.");
     // }
 
-    console.warn("File uploaded:", req.file);
-    console.warn("Content type:", req.file.mimetype);
+    // console.warn("File uploaded:", req.file);
+    // console.warn("Content type:", req.file.mimetype);
 
     const imageUrl = req.file.location;
 
