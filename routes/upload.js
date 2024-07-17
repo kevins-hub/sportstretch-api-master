@@ -59,22 +59,29 @@ router.post(
   upload.single("file"),
   auth,
   async (req, res) => {
-    const authId = req.params.id
-    console.warn("req = ", req);
+    const authId = req.params.id;
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
     }
+
+    console.warn("File uploaded:", req.file);
+    console.warn("Content type:", req.file.mimetype);
+
     const imageUrl = req.file.location;
 
     console.warn("imageUrl = ", imageUrl);
 
     // Save imageUrl to your database in tb_authorization associated with the user (not shown)
-    const imageUpload = await pool.query(
-      "UPDATE tb_authorization SET profile_picture_url = $1 WHERE authorization_id = $2",
-      [imageUrl, authId]
-    );
-
-    res.status(201).json({ imageUrl });
+    try {
+      const imageUpload = await pool.query(
+        "UPDATE tb_authorization SET profile_picture_url = $1 WHERE authorization_id = $2",
+        [imageUrl, authId]
+      );
+      res.status(201).json({ imageUrl });
+    } catch (err) {
+      console.error("Database update error:", error);
+      res.status(500).send("Error updating database.");
+    }
   }
 );
 
