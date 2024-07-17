@@ -54,7 +54,6 @@ const upload = multer({
     //   cb(null, contentType);
     // },
     key: function (req, file, cb) {
-      req.pause();
       console.warn("file = ", file);
       cb(
         null,
