@@ -33,9 +33,7 @@ try {
   console.error("Error configuring AWS SDK: ", error);
 }
 
-console.warn("s3Client = ", s3Client);
 const bucketName = process.env.S3_BUCKET_NAME;
-console.warn("bucketName = ", bucketName);
 
 // Set up multer and multer-s3 to handle file uploads
 const upload = multer({
@@ -43,6 +41,7 @@ const upload = multer({
     s3: s3Client,
     bucket: bucketName,
     acl: "public-read",
+    contentType: multerS3.AUTO_CONTENT_TYPE,
     key: function (req, file, cb) {
       console.warn("file = ", file);
       cb(
