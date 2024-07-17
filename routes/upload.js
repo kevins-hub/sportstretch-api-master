@@ -42,17 +42,17 @@ const upload = multer({
     bucket: bucketName,
     acl: "public-read",
     // contentType: multerS3.AUTO_CONTENT_TYPE,
-    // contentType: function (req, file, cb) {
-    //   // Manually set the content type based on the file type
-    //   const mimeTypes = {
-    //     "image/jpeg": "image/jpeg",
-    //     "image/png": "image/png",
-    //     // Add other MIME types if needed
-    //   };
-    //   const contentType =
-    //     mimeTypes[file.mimetype] || "application/octet-stream";
-    //   cb(null, contentType);
-    // },
+    contentType: function (req, file, cb) {
+      // Manually set the content type based on the file type
+      const mimeTypes = {
+        "image/jpeg": "image/jpeg",
+        "image/png": "image/png",
+        // Add other MIME types if needed
+      };
+      const contentType =
+        mimeTypes[file.mimetype] || "application/octet-stream";
+      cb(null, contentType);
+    },
     key: function (req, file, cb) {
       console.warn("file = ", file);
       cb(
