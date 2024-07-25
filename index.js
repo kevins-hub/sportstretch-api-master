@@ -16,6 +16,7 @@ const report = require("./routes/report");
 const emailService = require("./utilities/email.js");
 const upload = require("./routes/upload.js")
 const profilePicture = require("./routes/profilePicture.js")
+const schedule = require("node-schedule")
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
@@ -45,7 +46,7 @@ app.get("/", (req, res) => {
 });
 
 // cron job to run at midnight and send reminder emails to all therapists and athletes with appointments the next day
-cron.schedule("5 0 * * *", async () => {
+schedule.scheduleJob("5 0 * * *", async () => {
   const today = new Date();
   today.setDate(today.getDate());
   const todayString = today.toISOString().split("T")[0];
