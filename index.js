@@ -76,6 +76,12 @@ schedule.scheduleJob("5 0 * * *", async () => {
   });
 });
 
+// TODO: schedule job to run 30 minutes after midnight to charge athletes for their appointments
+// schedule.scheduleJob("35 0 * * *", async () => {
+//   // charge payment intent
+//   console.warn("charging payment intents");
+// });
+
 
 const port = process.env.PORT || config.get("port");
 
