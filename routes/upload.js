@@ -72,13 +72,9 @@ router.post(
   async (req, res) => {
     console.warn("req = ", req);
     const authId = req.params.id;
-    // if (!req.file) {
-    //   return res.status(400).send("No file uploaded.");
-    // }
-
-    // console.warn("File uploaded:", req.file);
-    // console.warn("Content type:", req.file.mimetype);
-
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
+    }
     const imageUrl = req.file.location;
 
     console.warn("imageUrl = ", imageUrl);
