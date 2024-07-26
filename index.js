@@ -51,7 +51,7 @@ const getTodaysBookings = async ()  => {
   today.setDate(today.getDate());
   const todayString = today.toISOString().split("T")[0];
   const result = await pool.query(
-    "SELECT * FROM tb_bookings WHERE date = $1",
+    "SELECT * FROM tb_bookings WHERE booking_date = $1",
     [todayString]
   );
   return result.rows;
@@ -65,39 +65,54 @@ const updateBookingStatus = async (bookingId, status) => {
   return result.rowCount === 1;
 }
 
+const getAthleteTherapistContactInfo = async (therapist_id, athlete_id) => {
+  // query tb_authorization, tb_therapist, and tb_athlete to get therapist auth id, therapist first name, therapist email, athlete auth id, athlete first name, and athlete email
+  const therapistResult = await pool.query(
+    "SELECT authorization_id, first_name, email FROM tb_authorization JOIN tb_therapist ON tb_authorization.authorization_id = tb_therapist.fk_authorization_id WHERE therapist_id = $1",
+    [therapist_id]
+  );
+  const athleteResult = await pool.query(
+    "SELECT authorization_id, first_name, email FROM tb_authorization JOIN tb_athlete ON tb_authorization.authorization_id = tb_athlete.fk_authorization_id WHERE athlete_id = $1",
+    [athlete_id]
+  );
+  return {
+    therapist: therapistResult.rows[0], // { authorization_id, first_name, email }
+    athlete: athleteResult.rows[0], // { authorization_id, first_name, email }
+  };
+
+}
+
 // cron job to run at midnight and send reminder emails to all therapists and athletes with appointments the next day
-schedule.scheduleJob("48 * * * *", async () => {
+schedule.scheduleJob("18 * * * *", async () => {
   const today = new Date();
   today.setDate(today.getDate());
   const todayString = today.toISOString().split("T")[0];
-  const therapistsQueryResult = await pool.query(
-    "SELECT email, first_name, last_name FROM tb_therapist WHERE therapist_id IN (SELECT fk_therapist_id FROM tb_bookings WHERE date = $1)",
+
+  const bookingQueryResult = await pool.query(
+    "SELECT bookings_id, fk_therapist_id, fk_athlete_id FROM tb_bookings WHERE date = $1",
     [todayString]
   );
-  const athletesQueryResult = await pool.query(
-    "SELECT email, first_name, last_name FROM tb_athlete WHERE athlete_id IN (SELECT fk_athlete_id FROM tb_bookings WHERE date = $1)",
-    [todayString]
-  );
-  const therapists = therapistsQueryResult.rows;
-  const athletes = athletesQueryResult.rows;
-  // keep set of sent email addresses to avoid sending multiple emails to the same person
   const sentEmails = new Set();
-  therapists.forEach((therapist) => {
-    if (!sentEmails.has(therapist.email)) {
-      emailService.sendBookingReminderEmail(therapist.email, therapist.first_name);
-      sentEmails.add(therapist.email);
-    }
-  });
-  athletes.forEach((athlete) => {
-    if (!sentEmails.has(athlete.email)) {
-      emailService.sendBookingReminderEmail(athlete.email, athlete.first_name);
-      sentEmails.add(athlete.email);
+  const bookings = bookingQueryResult.rows;
+  bookings.forEach(async (booking) => {
+    try {
+      const { therapist, athlete } = await getAthleteTherapistContactInfo(booking.fk_therapist_id, booking.fk_athlete_id);
+      if (!sentEmails.has(therapist.email)) {
+        emailService.sendBookingReminderEmail(therapist.email, therapist.first_name);
+        sentEmails.add(therapist.email);
+      }
+      if (!sentEmails.has(athlete.email)) {
+        emailService.sendBookingReminderEmail(athlete.email, athlete.first_name);
+        sentEmails.add(athlete.email);
+      }
+    } catch (err) {
+      console.error(`Error sending booking reminder email for booking: bookingId: ${booking.bookings_id}`, err);
     }
   });
 });
 
 // TODO: schedule job to run 30 minutes after midnight to charge athletes for their appointments
-schedule.scheduleJob("48 * * * *", async () => {
+schedule.scheduleJob("18 * * * *", async () => {
   // charge payment intent
   try {
     console.warn("charging payment intents");
