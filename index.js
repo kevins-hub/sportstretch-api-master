@@ -59,7 +59,7 @@ const getTodaysBookings = async ()  => {
 
 const updateBookingStatus = async (bookingId, status) => {
   const result = await pool.query(
-    "UPDATE tb_bookings SET status = $1 WHERE booking_id = $2",
+    "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2",
     [status, bookingId]
   );
   return result.rowCount === 1;
