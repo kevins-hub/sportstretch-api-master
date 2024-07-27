@@ -59,7 +59,7 @@ const getTodaysBookings = async ()  => {
 
 const updateBookingStatus = async (bookingId, status) => {
   const result = await pool.query(
-    "UPDATE tb_bookings SET status = $1 WHERE booking_id = $2",
+    "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2",
     [status, bookingId]
   );
   return result.rowCount === 1;
@@ -122,12 +122,13 @@ schedule.scheduleJob("38 * * * *", async () => {
       try {
         const bookingId = booking.bookings_id;
         const paymentIntentId = booking.payment_intent_id;
-        const paymentIntent = await stripe.paymentIntents.capture(paymentIntentId);
+        const paymentIntentCapture = await stripe.paymentIntents.capture(paymentIntentId);
+        console.warn("paymentIntentCapture = ", paymentIntentCapture);
         await  updateBookingStatus(bookingId, "Paid");
-        console.warn(`Payment for booking ID ${bookingId} successful. (Payment Intent: ${paymentIntent})`);
+        console.warn(`Payment for booking ID ${bookingId} successful. (Payment Intent: ${paymentIntentCapture})`);
       } catch (error) {
-        console.error(`Error capturing payment for booking ID ${bookingId}:`, error);
-        await updateBookingStatus(bookingId, "CancelledRefunded");
+        console.error(`Error capturing payment for booking ID ${booking.bookings_id}:`, error);
+        await updateBookingStatus(booking.bookings_id, "CancelledRefunded");
       }
     });
   } catch (error) {
