@@ -135,6 +135,13 @@ router.get("/retrieve-stripe-account/:id", async (req, res) => {
       res.status(404).send("Stripe account not found for therapist.");
     }
     const account = await stripe.accounts.retrieve(stripe_account_id);
+    if (!account) {
+      res.status(404).send("Stripe account not found.");
+    }
+    await pool.query(
+      "UPDATE tb_therapist SET accepts_payments = $1 WHERE therapist_id = $2",
+      [account.payouts_enabled ? true : false, therapist_id]
+    );
     res.send(account);
   } catch (err) {
     res
