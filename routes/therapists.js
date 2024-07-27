@@ -15,8 +15,9 @@ const pool = new Pool({
 
 router.get("/all", auth, async (req, res) => {
   try {
-    const allTherapists = await pool.query(
-      "SELECT first_name, last_name, mobile, city, state, enabled, average_rating, therapist_id, email, license_infourl FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id WHERE T.enabled != -1"
+    // combine profile_picture_url from tb_authorization into allTherapists call
+    const allTherapists= await pool.query(
+      "SELECT first_name, last_name, mobile, city, state, enabled, average_rating, therapist_id, email, license_infourl, profile_picture_url FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id"
     );
     res.status(200).json(allTherapists.rows);
   } catch (err) {
@@ -29,8 +30,9 @@ router.get("/enabled/online", auth, async (req, res) => {
     const state = req.query.state;
     if (state) {
       const stateName = us_states[state];
+      // combine profile_picture_url from tb_authorization into therapists call
       const therapists = await pool.query(
-        "SELECT * FROM tb_therapist WHERE enabled = 1 and status = true and state = $1",
+        "SELECT therapist_id, fk_authorization_id, first_name, last_name, mobile, apartment_no, street, city, state, zipcode, license_infourl, enabled, status, average_rating, profession, summary, hourly_rate, services, accepts_house_calls, business_hours, accepts_in_clinic, stripe_account_id, accepted_booking_count, accepts_payments, profile_picture_url FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id WHERE enabled = 1 and status = true and state = $1",
         [stateName]
       );
       res.status(200).json(therapists.rows);
