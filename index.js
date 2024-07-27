@@ -132,10 +132,11 @@ schedule.scheduleJob("35 * * * *", async () => {
 });
 
 // TODO: schedule job to run 30 minutes after midnight to charge athletes for their appointments
-schedule.scheduleJob("40 * * * *", async () => {
+schedule.scheduleJob("48 * * * *", async () => {
   // charge payment intent
   try {
     console.warn("charging payment intents");
+    console.warn("today = ", new Date());
     const bookingsToday = await getTodaysBookings();
     console.warn("bookingsToday = ", bookingsToday);
     bookingsToday.forEach(async (booking) => {
