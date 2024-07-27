@@ -119,7 +119,7 @@ router.get("/therapist/upcomingBookings", async (req, res) => {
     // const query =
     //   "SELECT  B.bookings_id,B.athlete_location, A.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.booking_date, B.total_cost FROM tb_bookings B join tb_athlete A ON B.fk_athlete_id = A.athlete_id WHERE B.fk_therapist_id=$1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour')";
     // rewrite query to include athlete's profile picture from tb_authoriation
-    const queryWithAthleteProfilePicture = "SELECT  B.bookings_id,B.athlete_location, A.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.booking_date, B.total_cost, A.profile_picture_url FROM tb_bookings B join tb_athlete A ON B.fk_athlete_id = A.athlete_id WHERE B.fk_therapist_id=$1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour')";
+    const queryWithAthleteProfilePicture = "SELECT  B.bookings_id,B.athlete_location, A.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.booking_date, B.total_cost, C.profile_picture_url FROM tb_bookings B join tb_athlete A ON B.fk_athlete_id = A.athlete_id JOIN tb_authoriaztion C ON A.fk_authorization_id = C.authorization_id WHERE B.fk_therapist_id=$1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour')";
     const upcomingBookings = await pool.query(queryWithAthleteProfilePicture, [therapistId]);
     res.status(200).json(upcomingBookings.rows);
   } catch (err) {
