@@ -59,13 +59,13 @@ const getTodaysBookings = async () => {
   return result.rows;
 };
 
-const updateBookingStatus = async (bookingId, status) => {
-  const result = await pool.query(
-    "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2",
-    [status, bookingId]
-  );
-  return result.rowCount === 1;
-};
+// const updateBookingStatus = async (bookingId, status) => {
+//   const result = await pool.query(
+//     "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2",
+//     [status, bookingId]
+//   );
+//   return result.rowCount === 1;
+// };
 
 const getAthleteTherapistContactInfo = async (therapist_id, athlete_id) => {
   // query tb_authorization, tb_therapist, and tb_athlete to get therapist auth id, therapist first name, therapist email, athlete auth id, athlete first name, and athlete email
