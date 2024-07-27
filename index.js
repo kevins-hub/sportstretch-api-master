@@ -83,13 +83,13 @@ const getAthleteTherapistContactInfo = async (therapist_id, athlete_id) => {
   };
 };
 
-const getTherapistStripeAccountId = async (therapist_id) => {
-  const result = await pool.query(
-    "SELECT stripe_account_id FROM tb_therapist WHERE therapist_id = $1",
-    [therapist_id]
-  );
-  return result.rows[0].stripe_account_id;
-};
+// const getTherapistStripeAccountId = async (therapist_id) => {
+//   const result = await pool.query(
+//     "SELECT stripe_account_id FROM tb_therapist WHERE therapist_id = $1",
+//     [therapist_id]
+//   );
+//   return result.rows[0].stripe_account_id;
+// };
 
 // const chargeBooking = async (booking) => {
 //   try {
@@ -167,7 +167,7 @@ schedule.scheduleJob("0 7 * * *", async () => {
 //   try {
 //     const bookingsToday = await getTodaysBookings();
 //     bookingsToday.forEach(async (booking) => {
-//       await stripeUtil.chargeBooking(booking);s
+//       await stripeUtil.chargeBooking(booking);
 //     });
 //   } catch (error) {
 //     console.error("Error batch charging payment intents:", error);
