@@ -17,7 +17,8 @@ const emailService = require("./utilities/email.js");
 const upload = require("./routes/upload.js");
 const profilePicture = require("./routes/profilePicture.js");
 const schedule = require("node-schedule");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST);
+// const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST);
+// const stripeUtil = require("./utilities/stripe.js");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
@@ -90,6 +91,35 @@ const getTherapistStripeAccountId = async (therapist_id) => {
   return result.rows[0].stripe_account_id;
 };
 
+// const chargeBooking = async (booking) => {
+//   try {
+//     const bookingId = booking.bookings_id;
+//     const paymentIntentId = booking.payment_intent_id;
+//     const therapistId = booking.fk_therapist_id;
+//     const therapistStripeAccountId = await getTherapistStripeAccountId(
+//       therapistId
+//     );
+//     const paymentIntentCapture = await stripe.paymentIntents.capture(
+//       paymentIntentId,
+//       {},
+//       {
+//         stripeAccount: therapistStripeAccountId,
+//       }
+//     );
+//     console.warn("paymentIntentCapture = ", paymentIntentCapture);
+//     await updateBookingStatus(bookingId, "Paid");
+//     console.warn(
+//       `Payment for booking ID ${bookingId} successful. (Payment Intent: ${paymentIntentCapture})`
+//     );
+//   } catch (error) {
+//     console.error(
+//       `Error capturing payment for booking ID ${booking.bookings_id}:`,
+//       error
+//     );
+//     await updateBookingStatus(booking.bookings_id, "CancelledRefunded");
+//   }
+// };
+
 // cron job to run at 7AM UTC (3AM ET, 12AM PST) and send reminder emails to all therapists and athletes with appointments the next day
 schedule.scheduleJob("0 7 * * *", async () => {
   const today = new Date();
@@ -131,43 +161,18 @@ schedule.scheduleJob("0 7 * * *", async () => {
   });
 });
 
+// ToDo: uncomment / modify after gaining more clarity on charging requirements
 // Schedule job to run noon UTC (8AM ET, 5AM PST)  to charge athletes for their appointments for the day
-schedule.scheduleJob("0 12 * * *", async () => {
-  // charge payment intent
-  try {
-    const bookingsToday = await getTodaysBookings();
-    bookingsToday.forEach(async (booking) => {
-      try {
-        const bookingId = booking.bookings_id;
-        const paymentIntentId = booking.payment_intent_id;
-        const therapistId = booking.fk_therapist_id;
-        const therapistStripeAccountId = await getTherapistStripeAccountId(
-          therapistId
-        );
-        const paymentIntentCapture = await stripe.paymentIntents.capture(
-          paymentIntentId,
-          {},
-          {
-            stripeAccount: therapistStripeAccountId,
-          }
-        );
-        console.warn("paymentIntentCapture = ", paymentIntentCapture);
-        await updateBookingStatus(bookingId, "Paid");
-        console.warn(
-          `Payment for booking ID ${bookingId} successful. (Payment Intent: ${paymentIntentCapture})`
-        );
-      } catch (error) {
-        console.error(
-          `Error capturing payment for booking ID ${booking.bookings_id}:`,
-          error
-        );
-        await updateBookingStatus(booking.bookings_id, "CancelledRefunded");
-      }
-    });
-  } catch (error) {
-    console.error("Error batch charging payment intents:", error);
-  }
-});
+// schedule.scheduleJob("0 12 * * *", async () => {
+//   try {
+//     const bookingsToday = await getTodaysBookings();
+//     bookingsToday.forEach(async (booking) => {
+//       await stripeUtil.chargeBooking(booking);s
+//     });
+//   } catch (error) {
+//     console.error("Error batch charging payment intents:", error);
+//   }
+// });
 
 const port = process.env.PORT || config.get("port");
 

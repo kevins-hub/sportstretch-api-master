@@ -3,6 +3,7 @@ const router = express.Router();
 const config = require("config");
 const auth = require("../middleware/auth");
 const emailService = require("../utilities/email.js");
+const stripeUtil = require("../utilities/stripe.js");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
@@ -11,6 +12,26 @@ const pool = new Pool({
     rejectUnauthorized: false,
   },
 });
+
+const declineBooking = async (confirmation_status, bookings_id, reason, suggestedBookingDateTime = null) => {
+  const bookingStatus = await pool.query(
+    "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
+    [confirmation_status, reason, bookings_id]
+  );
+  const booking = bookingStatus.rows[0];
+  const athleteId = booking.fk_athlete_id;
+  const athleteEmailQuery = await pool.query(
+    "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
+    [athleteId]
+  );
+  const bookingId = booking.bookings_id;
+  const therapistNameQuery = await pool.query(
+    "SELECT first_name FROM tb_therapist WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
+    [bookingId]
+  );
+  emailService.sendBookingDeclinedEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name, reason, suggestedBookingDateTime ? suggestedBookingDateTime : null);
+  return booking;
+};
 
 router.get("/athlete/pastBookings", auth, async (req, res) => {
   try {
@@ -105,15 +126,23 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
     const bookings_id = parseInt(req.params.id, 10);
     const confirmation_status = 1;
     const bookingStatus = await pool.query(
-      "UPDATE tb_bookings SET confirmation_status = $1, confirmation_time = CURRENT_TIMESTAMP  WHERE bookings_id = $2 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
+      "UPDATE tb_bookings SET confirmation_status = $1, confirmation_time = CURRENT_TIMESTAMP  WHERE bookings_id = $2 RETURNING *",
       [confirmation_status, bookings_id]
     );
-    const athleteId = bookingStatus.rows[0].fk_athlete_id;
+    const booking = bookingStatus.rows[0];
+    const bookingCharged = await stripeUtil.chargeBooking(booking);
+    if (bookingCharged === false) {
+      await declineBooking(0, bookings_id, "Booking payment failed. Please book again with valid payment information.");
+      res.status(400).send("Athlete's payment failed. They have been notified to try booking again.");
+      //ToDo: Send email to athlete that booking payment failed
+      return;
+    }
+    const athleteId = booking.fk_athlete_id;
     const athleteEmailQuery = await pool.query(
       "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
       [athleteId]
     );
-    const bookingId = bookingStatus.rows[0].bookings_id;
+    const bookingId = booking.bookings_id;
     const therapistNameQuery = await pool.query(
       "SELECT first_name FROM tb_therapist WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
       [bookingId]
@@ -123,10 +152,10 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
       [bookingId]
     );
     res.status(200).json({
-      bookings_id: bookingStatus.rows[0].bookings_id,
-      confirmation_status: bookingStatus.rows[0].confirmation_status,
-      confirmation_time: bookingStatus.rows[0].confirmation_time,
-      athlete_id: bookingStatus.rows[0].fk_athlete_id,
+      bookings_id: booking.bookings_id,
+      confirmation_status: booking.confirmation_status,
+      confirmation_time: booking.confirmation_time,
+      athlete_id: booking.fk_athlete_id,
     });
     emailService.sendBookingConfirmationEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name);
 
@@ -141,28 +170,29 @@ router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
     const reason = req.body.reason ? req.body.reason : "No reason provided";
     const confirmation_status = 0;
     const suggestedBookingDateTime = req.body.suggestedBookingDateTime ? req.body.suggestedBookingDateTime : null;
-    const bookingStatus = await pool.query(
-      "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
-      [confirmation_status, reason, bookings_id]
-    );
-    const athleteId = bookingStatus.rows[0].fk_athlete_id;
-    const athleteEmailQuery = await pool.query(
-      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
-      [athleteId]
-    );
-    const bookingId = bookingStatus.rows[0].bookings_id;
-    const therapistNameQuery = await pool.query(
-      "SELECT first_name FROM tb_therapist WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
-      [bookingId]
-    );
+    const declinedBooking = await declineBooking(confirmation_status, bookings_id, reason, suggestedBookingDateTime);
+    // const bookingStatus = await pool.query(
+    //   "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
+    //   [confirmation_status, reason, bookings_id]
+    // );
+    // const athleteId = bookingStatus.rows[0].fk_athlete_id;
+    // const athleteEmailQuery = await pool.query(
+    //   "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
+    //   [athleteId]
+    // );
+    // const bookingId = bookingStatus.rows[0].bookings_id;
+    // const therapistNameQuery = await pool.query(
+    //   "SELECT first_name FROM tb_therapist WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
+    //   [bookingId]
+    // );
     res.status(200).json({
-      bookings_id: bookingStatus.rows[0].bookings_id,
-      confirmation_status: bookingStatus.rows[0].confirmation_status,
-      confirmation_time: bookingStatus.rows[0].confirmation_time,
-      decline_reason: bookingStatus.rows[0].decline_reason,
-      athlete_id: bookingStatus.rows[0].fk_athlete_id,
+      bookings_id: declinedBooking.bookings_id,
+      confirmation_status: declinedBooking.confirmation_status,
+      confirmation_time: declinedBooking.confirmation_time,
+      decline_reason: declinedBooking.decline_reason,
+      athlete_id: declinedBooking.fk_athlete_id,
     });
-    emailService.sendBookingDeclinedEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name, reason, suggestedBookingDateTime ? suggestedBookingDateTime : null);
+    // emailService.sendBookingDeclinedEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name, reason, suggestedBookingDateTime ? suggestedBookingDateTime : null);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
