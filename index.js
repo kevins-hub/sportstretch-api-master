@@ -84,7 +84,7 @@ const getAthleteTherapistContactInfo = async (therapist_id, athlete_id) => {
 }
 
 // cron job to run at midnight and send reminder emails to all therapists and athletes with appointments the next day
-schedule.scheduleJob("45 * * * *", async () => {
+schedule.scheduleJob("55 * * * *", async () => {
   const today = new Date();
   today.setDate(today.getDate());
   const todayString = today.toISOString().split("T")[0];
@@ -113,7 +113,7 @@ schedule.scheduleJob("45 * * * *", async () => {
 });
 
 // TODO: schedule job to run 30 minutes after midnight to charge athletes for their appointments
-schedule.scheduleJob("45 * * * *", async () => {
+schedule.scheduleJob("55 * * * *", async () => {
   // charge payment intent
   try {
     console.warn("charging payment intents");
