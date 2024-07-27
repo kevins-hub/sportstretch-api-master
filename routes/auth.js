@@ -38,6 +38,7 @@ router.post("/", async (req, res) => {
         first_name: athlete.rows[0].first_name,
         last_name: athlete.rows[0].last_name,
         mobile: athlete.rows[0].mobile,
+        email: email,
       };
     } else if (user.rows[0].role === "therapist") {
       const therapist = await pool.query(
@@ -65,6 +66,7 @@ router.post("/", async (req, res) => {
         accepts_house_calls: therapist.rows[0].accepts_house_calls,
         business_hours: therapist.rows[0].business_hours,
         accepts_in_clinic: therapist.rows[0].accepts_in_clinic,
+        email: email,
       };
     } else if (user.rows[0].role === "admin") {
       const athlete = await pool.query(
