@@ -9,6 +9,14 @@ const pool = new Pool({
   },
 });
 
+const updateBookingStatus = async (bookingId, status) => {
+    const result = await pool.query(
+      "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2",
+      [status, bookingId]
+    );
+    return result.rowCount === 1;
+  };
+
 const getTherapistStripeAccountId = async (therapist_id) => {
     const result = await pool.query(
       "SELECT stripe_account_id FROM tb_therapist WHERE therapist_id = $1",
