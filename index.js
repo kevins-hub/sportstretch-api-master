@@ -92,7 +92,7 @@ const getTherapistStripeAccountId = async (therapist_id) => {
 }
 
 // cron job to run at midnight and send reminder emails to all therapists and athletes with appointments the next day
-schedule.scheduleJob("30 * * * *", async () => {
+schedule.scheduleJob("35 * * * *", async () => {
   const today = new Date();
   today.setDate(today.getDate());
   const todayString = today.toISOString().split("T")[0];
@@ -121,7 +121,7 @@ schedule.scheduleJob("30 * * * *", async () => {
 });
 
 // TODO: schedule job to run 30 minutes after midnight to charge athletes for their appointments
-schedule.scheduleJob("30 * * * *", async () => {
+schedule.scheduleJob("35 * * * *", async () => {
   // charge payment intent
   try {
     console.warn("charging payment intents");
@@ -133,6 +133,7 @@ schedule.scheduleJob("30 * * * *", async () => {
         const paymentIntentId = booking.payment_intent_id;
         const therapistId = booking.fk_therapist_id;
         const therapistStripeAccountId = await getTherapistStripeAccountId(therapistId);
+        console.warn("therapistStripeAccountId = ", therapistStripeAccountId);
         const paymentIntentCapture = await stripe.paymentIntents.capture(paymentIntentId, {
           amount_to_capture: booking.total_cost,
           transfer_data: {
