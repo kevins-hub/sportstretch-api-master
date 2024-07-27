@@ -83,8 +83,16 @@ const getAthleteTherapistContactInfo = async (therapist_id, athlete_id) => {
 
 }
 
+const getTherapistStripeAccountId = async (therapist_id) => {
+  const result = await pool.query(
+    "SELECT stripe_account_id FROM tb_therapist WHERE therapist_id = $1",
+    [therapist_id]
+  );
+  return result.rows[0].stripe_account_id;
+}
+
 // cron job to run at midnight and send reminder emails to all therapists and athletes with appointments the next day
-schedule.scheduleJob("55 * * * *", async () => {
+schedule.scheduleJob("30 * * * *", async () => {
   const today = new Date();
   today.setDate(today.getDate());
   const todayString = today.toISOString().split("T")[0];
@@ -113,7 +121,7 @@ schedule.scheduleJob("55 * * * *", async () => {
 });
 
 // TODO: schedule job to run 30 minutes after midnight to charge athletes for their appointments
-schedule.scheduleJob("55 * * * *", async () => {
+schedule.scheduleJob("30 * * * *", async () => {
   // charge payment intent
   try {
     console.warn("charging payment intents");
@@ -123,7 +131,14 @@ schedule.scheduleJob("55 * * * *", async () => {
       try {
         const bookingId = booking.bookings_id;
         const paymentIntentId = booking.payment_intent_id;
-        const paymentIntentCapture = await stripe.paymentIntents.capture(paymentIntentId);
+        const therapistId = booking.fk_therapist_id;
+        const therapistStripeAccountId = await getTherapistStripeAccountId(therapistId);
+        const paymentIntentCapture = await stripe.paymentIntents.capture(paymentIntentId, {
+          amount_to_capture: booking.total_cost,
+          transfer_data: {
+            destination: therapistStripeAccountId,
+          },
+        });
         console.warn("paymentIntentCapture = ", paymentIntentCapture);
         await  updateBookingStatus(bookingId, "Paid");
         console.warn(`Payment for booking ID ${bookingId} successful. (Payment Intent: ${paymentIntentCapture})`);
