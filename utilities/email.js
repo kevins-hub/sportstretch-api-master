@@ -165,7 +165,7 @@ const sendTherapistCancelledBookingEmail = (
   bookingId,
   therapistName
 ) => {
-  const message = `${therapistName} has cancelled your appointment. You will be refunded in full.`;
+  const message = `${therapistName} has cancelled your appointment. You have been given a full refund.`;
   const subject = `Appointment with ${therapistName} (Booking ID ${bookingId}) Cancelled`;
   const mailObj = makeEmail(message, athleteEmail, subject);
   transporter.sendMail(mailObj, (error, info) => {

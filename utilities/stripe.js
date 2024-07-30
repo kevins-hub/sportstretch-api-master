@@ -71,7 +71,6 @@ const processRefund = async (
         stripeAccount: stripeAccountId,
       }
     );
-    console.warn("refund = ", refund);
     return refund.status === "succeeded";
   } catch (error) {
     console.error(
