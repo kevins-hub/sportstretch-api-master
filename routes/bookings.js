@@ -250,9 +250,14 @@ router.put("/therapist/cancelBooking/:id", auth, async (req, res) => {
     const bookings_id = parseInt(req.params.id, 10);
     const status = "CancelledRefunded";
     const cancelled = await pool.query(
-      "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2 RETURNING bookings_id, status",
+      "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2 RETURNING bookings_id, status, payment_intent_id",
       [status, bookings_id]
     );
+    const refundSucceeded = await stripeUtil.processRefund(cancelled.rows[0].payment_intent_id);
+    if (!refundSucceeded) {
+      res.status(500).send("Refund could not be completed. Please try again later.");
+      return;
+    }
     res.status(200).json({
       bookings_id: cancelled.rows[0].bookings_id,
       status: cancelled.rows[0].status,
