@@ -56,6 +56,21 @@ const chargeBooking = async (booking) => {
     }
   };
 
+  const processRefund = async (paymentIntentId, amount = null) => {
+    try {
+      const refund = await stripe.refunds.create({
+        payment_intent: paymentIntentId,
+        //amount: amount,
+      });
+      console.warn("refund = ", refund);
+      return refund.status === "succeeded";
+    } catch (error) {
+      console.error(`Error processing refund for payment intent ${paymentIntentId}:`, error);
+      return false;
+    }
+  }
+
   module.exports = {
     chargeBooking,
+    processRefund,
   };
