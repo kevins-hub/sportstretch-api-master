@@ -85,4 +85,5 @@ const processRefund = async (
 module.exports = {
   chargeBooking,
   processRefund,
+  getTherapistStripeAccountId,
 };
