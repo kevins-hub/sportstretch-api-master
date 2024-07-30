@@ -250,7 +250,7 @@ router.put("/therapist/cancelBooking/:id", auth, async (req, res) => {
     const bookings_id = parseInt(req.params.id, 10);
     const status = "CancelledRefunded";
     const cancelled = await pool.query(
-      "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2 RETURNING bookings_id, status, payment_intent_id",
+      "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2 RETURNING bookings_id, status, fk_therapist_id, payment_intent_id",
       [status, bookings_id]
     );
     const stripeAccountId = await stripeUtil.getTherapistStripeAccountId(cancelled.rows[0].fk_therapist_id);
