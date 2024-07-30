@@ -254,7 +254,7 @@ router.put("/therapist/cancelBooking/:id", auth, async (req, res) => {
       [status, bookings_id]
     );
     const stripeAccountId = await stripeUtil.getTherapistStripeAccountId(cancelled.rows[0].fk_therapist_id);
-    const refundSucceeded = await stripeUtil.processRefund(cancelled.rows[0].payment_intent_id, stripeAccountIds);
+    const refundSucceeded = await stripeUtil.processRefund(cancelled.rows[0].payment_intent_id, stripeAccountId);
     if (!refundSucceeded) {
       res.status(500).send("Refund could not be completed. Please try again later.");
       return;
