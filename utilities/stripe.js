@@ -84,15 +84,17 @@ const processRefund = async (
 };
 
 const processRefundMinusFee = async (paymentIntentId, stripeAccountId, bookingCost) => {
-
-  console.warn("amount = ", bookingCost - CANCELLATION_FEE_AMOUNT);
-  console.warn("bookingCost = ", bookingCost);
-  console.warn("CANCELLATION_FEE_AMOUNT = ", CANCELLATION_FEE_AMOUNT);
+  
+  const bookingCostInCents = bookingCost * 100;
+  const refundAmount = bookingCostInCents - CANCELLATION_FEE_AMOUNT;
+  if (refundAmount <= 0) {
+    return false;
+  }
   try {
     const refund = await stripe.refunds.create(
       {
         payment_intent: paymentIntentId,
-        amount: bookingCost - CANCELLATION_FEE_AMOUNT,
+        amount: bookingCostInCents - CANCELLATION_FEE_AMOUNT,
       },
       {
         stripeAccount: stripeAccountId,
