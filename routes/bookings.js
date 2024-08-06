@@ -33,6 +33,25 @@ const declineBooking = async (confirmation_status, bookings_id, reason, suggeste
   return booking;
 };
 
+const eligibleFullRefund = (bookingTime, confirmationTime) => {
+  // eligible for refund if booking time is more than 24 hours away or confirmation time is within 24 hours of booking time
+  const now = new Date().getTime();
+  const bookingDateTime = new Date(bookingTime).getTime();
+  const diff = bookingDateTime - now;
+  if (diff > 86400000) {
+    return true;
+  }
+  const confirmationDiff = new Date(confirmationTime).getTime() - bookingDateTime;
+  if  (confirmationDiff < 0) {
+    return false;
+  }
+  if (confirmationDiff < 86400000) {
+    return true;
+  }
+  return false;
+}
+
+
 router.get("/athlete/pastBookings", auth, async (req, res) => {
   try {
     const athleteId = parseInt(req.query.athleteId, 10);
@@ -210,13 +229,12 @@ router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
   try {
     const bookings_id = parseInt(req.params.id, 10);
     const booking = await pool.query(
-      "SELECT booking_time, fk_therapist_id, fk_athlete_id, payment_intent_id, total_cost FROM tb_bookings WHERE bookings_id = $1",
+      "SELECT booking_time, confirmation_time, fk_therapist_id, fk_athlete_id, payment_intent_id, total_cost FROM tb_bookings WHERE bookings_id = $1",
       [bookings_id]
     );
     const booking_time = booking.rows[0].booking_time;
-    const now = new Date().getTime();
-    const diff = new Date(booking_time).getTime() - now;
-    const status = diff > 86400000 ? "CancelledRefunded" : "CancelledNoRefund";
+    const confirmation_time = booking.rows[0].confirmation_time;
+    const status = eligibleFullRefund(booking_time, confirmation_time) ? "CancelledRefunded" : "CancelledNoRefund";
     const stripeAccountId = await stripeUtil.getTherapistStripeAccountId(booking.rows[0].fk_therapist_id);
     if (status === "CancelledRefunded") {
       const refundSucceeded = stripeUtil.processRefund(booking.rows[0].payment_intent_id, stripeAccountId);
@@ -226,7 +244,7 @@ router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
       }
     } else {
       const total_cost = booking.rows[0].total_cost;
-      const refundSuceeded = stripeUtil.processRefundMinusFee(booking.rows[0].payment_intent_id, stripeAccountId, total_cost);
+      const refundSucceeded = stripeUtil.processRefundMinusFee(booking.rows[0].payment_intent_id, stripeAccountId, total_cost);
       if (!refundSucceeded) {
         res.status(500).send("Refund could not be completed. Please try again later.");
         return;
