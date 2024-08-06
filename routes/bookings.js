@@ -210,16 +210,23 @@ router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
   try {
     const bookings_id = parseInt(req.params.id, 10);
     const booking = await pool.query(
-      "SELECT booking_time, fk_therapist_id, fk_athlete_id, payment_intent_id FROM tb_bookings WHERE bookings_id = $1",
+      "SELECT booking_time, fk_therapist_id, fk_athlete_id, payment_intent_id, total_cost FROM tb_bookings WHERE bookings_id = $1",
       [bookings_id]
     );
     const booking_time = booking.rows[0].booking_time;
     const now = new Date().getTime();
     const diff = new Date(booking_time).getTime() - now;
     const status = diff > 86400000 ? "CancelledRefunded" : "CancelledNoRefund";
+    const stripeAccountId = await stripeUtil.getTherapistStripeAccountId(booking.rows[0].fk_therapist_id);
     if (status === "CancelledRefunded") {
-      const stripeAccountId = await stripeUtil.getTherapistStripeAccountId(booking.rows[0].fk_therapist_id);
       const refundSucceeded = stripeUtil.processRefund(booking.rows[0].payment_intent_id, stripeAccountId);
+      if (!refundSucceeded) {
+        res.status(500).send("Refund could not be completed. Please try again later.");
+        return;
+      }
+    } else {
+      const total_cost = booking.rows[0].total_cost;
+      const refundSuceeded = stripeUtil.processRefundMinusFee(booking.rows[0].payment_intent_id, stripeAccountId, total_cost);
       if (!refundSucceeded) {
         res.status(500).send("Refund could not be completed. Please try again later.");
         return;

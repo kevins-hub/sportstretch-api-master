@@ -1,6 +1,8 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST);
 const config = require("config");
 
+const CANCELLATION_FEE_AMOUNT = 2000;
+
 const Pool = require("pg").Pool;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || config.get("connectionString"),
@@ -81,8 +83,30 @@ const processRefund = async (
   }
 };
 
+const processRefundMinusFee = async (paymentIntentId, stripeAccountId, bookingCost) => {
+  try {
+    const refund = await stripe.refunds.create(
+      {
+        payment_intent: paymentIntentId,
+        amount: bookingCost - CANCELLATION_FEE_AMOUNT,
+      },
+      {
+        stripeAccount: stripeAccountId,
+      }
+    );
+    return refund.status === "succeeded";
+  } catch (error) {
+    console.error(
+      `Error processing refund for payment intent ${paymentIntentId}:`,
+      error
+    );
+    return false;
+  }
+}
+
 module.exports = {
   chargeBooking,
   processRefund,
+  processRefundMinusFee,
   getTherapistStripeAccountId,
 };
