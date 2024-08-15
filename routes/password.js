@@ -23,6 +23,10 @@ router.put("/change-password", async (req, res) => {
   try {
     const { newPassword, oldPassword, authId } = req.body;
 
+    if (!newPassword || !oldPassword || !authId) {
+      return res.status(400).send("Bad request.");
+    }
+
     let user = await pool.query(
       "SELECT * FROM tb_authorization WHERE authorization_id = $1",
       [authId]
@@ -64,6 +68,9 @@ router.put("/change-password", async (req, res) => {
 router.put("/reset-auth", async (req, res) => {
   try {
     const { resetToken, authId } = req.body;
+    if (!resetToken || !authId) {
+      return res.status(400).send("Bad request.");
+    }
     let user = await pool.query(
       "SELECT * FROM tb_authorization WHERE authorization_id = $1",
       [authId]
@@ -94,6 +101,9 @@ router.put("/reset-auth", async (req, res) => {
 router.put("/reset-password", async (req, res) => {
   try {
     const { newPassword, authId } = req.body;
+    if (!newPassword || !authId) {
+      return res.status(400).send("Bad request.");
+    }
     const salt = await bcrypt.genSalt(10);
     const newHashed = await bcrypt.hash(newPassword, salt);
     const updatePw = await pool.query(
@@ -111,6 +121,10 @@ router.put("/reset-password", async (req, res) => {
 router.put("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).send("Bad request.");
+    }
 
     let user = await pool.query(
       "SELECT * FROM tb_authorization WHERE email = $1",

@@ -63,21 +63,19 @@ const upload = multer({
   }),
 });
 
-console.warn("upload = ", upload);
-
 router.post(
   "/profile-picture/:id",
   upload.single("file"),
   auth,
   async (req, res) => {
-    console.warn("req = ", req);
+    if (!req.params.id) {
+      return res.status(400).send("Bad request. Missing id.");
+    }
     const authId = req.params.id;
     if (!req.file) {
-      return res.status(400).send("No file uploaded.");
+      return res.status(400).send("Bad request. No file uploaded.");
     }
     const imageUrl = req.file.location;
-
-    console.warn("imageUrl = ", imageUrl);
 
     // Save imageUrl to your database in tb_authorization associated with the user (not shown)
     try {

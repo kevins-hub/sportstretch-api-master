@@ -16,6 +16,7 @@ router.put("/edit-contact", async (req, res) => {
   const { authId, email, phone, addressL1, addressL2, city, state, zipcode } =
     req.body;
 
+  // ToDo: validate request body
   let user = await pool.query(
     "SELECT * FROM tb_authorization WHERE authorization_id = $1",
     [authId]
@@ -54,6 +55,9 @@ router.put("/edit-contact", async (req, res) => {
 
 // get contact info
 router.get("/get-contact/:id", async (req, res) => {
+  if (!req.params.id) {
+    return res.status(400).send("Bad request. Missing id.");
+  }
   const authId = req.params.id;
   try {
     let user = await pool.query(

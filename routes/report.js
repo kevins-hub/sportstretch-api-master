@@ -15,6 +15,9 @@ const pool = new Pool({
 router.post("/reportIssue", auth, async (req, res) => {
   try {
     const { issue, booking_id, reporter_auth_id } = req.body;
+    if (!issue || !booking_id || !reporter_auth_id) {
+      return res.status(400).send("Bad request. Missing required fields.");
+    }
     const reporterEmailQueryResult = await pool.query(
       "SELECT email FROM tb_authorization WHERE authorization_id = $1",
       [reporter_auth_id]

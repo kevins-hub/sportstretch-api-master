@@ -60,6 +60,9 @@ router.get("/states", auth, async (req, res) => {
 
 router.put("/setAvailability/:id", auth, async (req, res) => {
   try {
+    if (!req.body.availability_status || !req.params.id) {
+      return res.status(400).send("Bad request. Missing required fields.");
+    }
     const therapist_id = parseInt(req.params.id, 10);
     const { availability_status } = req.body;
     const status = await pool.query(
@@ -88,6 +91,9 @@ router.get("/requests", auth, async (req, res) => {
 
 router.put("/approve/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id) {
+      return res.status(400).send("Bad request. Missing id.");
+    }
     const therapist_id = parseInt(req.params.id, 10);
     const approved = await pool.query(
       "UPDATE tb_therapist SET enabled = 1,  status = true WHERE therapist_id=$1 RETURNING *",
@@ -109,6 +115,9 @@ router.put("/approve/:id", auth, async (req, res) => {
 
 router.put("/disable/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id) {
+      return res.status(400).send("Bad request. Missing id.");
+    }
     const therapist_id = parseInt(req.params.id, 10);
     const denied = await pool.query(
       "UPDATE tb_therapist SET enabled = 0 WHERE therapist_id=$1 RETURNING *",
@@ -129,6 +138,9 @@ router.put("/disable/:id", auth, async (req, res) => {
 
 router.put("/toggle/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id || !req.body.enabled) {
+      return res.status(400).send("Bad request. Missing required fields.");
+    }
     const therapist_id = parseInt(req.params.id, 10);
     const enabled = parseInt(req.body.enabled);
     const toggled = await pool.query(
@@ -157,6 +169,9 @@ router.put("/toggle/:id", auth, async (req, res) => {
 // get therapist endpoint
 router.get("/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id) {
+      return res.status(400).send("Bad request. Missing id.");
+    }
     const therapist_id = parseInt(req.params.id, 10);
     const therapist = await pool.query(
       "SELECT * FROM tb_therapist WHERE therapist_id = $1",
@@ -186,6 +201,7 @@ router.put("/edit/:id", auth, async (req, res) => {
       licenseUrl,
       acceptsInClinic,
     } = req.body;
+    //  ToDo: validate request body
 
     const updatedTherapist = await pool.query(
       "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12 WHERE therapist_id = $13 RETURNING *",
@@ -214,6 +230,9 @@ router.put("/edit/:id", auth, async (req, res) => {
 // edit business hours endpoint
 router.put("/edit-hours/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id) {
+      return res.status(400).send("Bad request. Missing id.");
+    }
     const therapist_id = parseInt(req.params.id, 10);
     const { businessHours } = req.body;
 

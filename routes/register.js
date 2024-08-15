@@ -15,6 +15,10 @@ router.post("/athlete", async (req, res) => {
   try {
     const { firstName, lastName, email, mobile, password } = req.body;
 
+    if (!firstName || !lastName || !email || !mobile || !password) {
+      return res.status(400).send("Bad request.");
+    }
+
     let user = await pool.query(
       "SELECT * FROM tb_authorization WHERE email = $1",
       [email]
@@ -67,7 +71,7 @@ router.post("/therapist", async (req, res) => {
       acceptsInClinic,
       stripeAccountId,
     } = req.body;
-
+    // ToDo: validate request body
     let user = await pool.query(
       "SELECT * FROM tb_authorization WHERE email = $1",
       [email]
