@@ -235,6 +235,10 @@ router.put("/edit-hours/:id", auth, async (req, res) => {
     }
     const therapist_id = parseInt(req.params.id, 10);
     const { businessHours } = req.body;
+    if (!businessHours) {
+      return res.status(400).send("Bad request. Missing business hours.");
+    }
+    // ToDo: validate business hours
 
     const updatedTherapist = await pool.query(
       "UPDATE tb_therapist SET business_hours = $1 WHERE therapist_id = $2 RETURNING *",
