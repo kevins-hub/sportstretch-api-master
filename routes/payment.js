@@ -106,6 +106,9 @@ router.get("/generate-stripe-login-link/:id", async (req, res) => {
 
 router.get("/get-onboard-link/:id", async (req, res) => {
   const therapist_id = parseInt(req.params.id, 10);
+  if (!therapist_id) {
+    res.status(400).send("Invalid therapist ID.");
+  }
   try {
     const stripe_account_id = await getStripeAccountId(therapist_id);
     if (!stripe_account_id) {
@@ -129,6 +132,9 @@ router.get("/get-onboard-link/:id", async (req, res) => {
 
 router.get("/retrieve-stripe-account/:id", async (req, res) => {
   const therapist_id = parseInt(req.params.id, 10);
+  if (!therapist_id) {
+    res.status(400).send("Invalid therapist ID.");
+  }
   try {
     const stripe_account_id = await getStripeAccountId(therapist_id);
     if (!stripe_account_id) {

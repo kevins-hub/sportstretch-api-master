@@ -54,6 +54,10 @@ const eligibleFullRefund = (bookingTime, confirmationTime) => {
 
 router.get("/athlete/pastBookings", auth, async (req, res) => {
   try {
+    if (!req.query.athleteId) {
+      res.status(400).send("Bad Request: Missing athleteId");
+      return;
+    }
     const athleteId = parseInt(req.query.athleteId, 10);
     const query =
       "SELECT B.bookings_id, B.athlete_location, T.first_name, B.booking_time, B.confirmation_status, R.starrating, B.status, B.duration, B.booking_date, B.total_cost, T.therapist_id FROM tb_bookings B JOIN tb_therapist T ON B.fk_therapist_id = T.therapist_id LEFT JOIN tb_ratings R ON B.bookings_id = R.fk_bookings_id WHERE B.fk_athlete_id = $1 and booking_time < (CURRENT_TIMESTAMP - interval '1 hour') and B.confirmation_status = 1 ORDER BY B.bookings_id DESC";
@@ -66,11 +70,11 @@ router.get("/athlete/pastBookings", auth, async (req, res) => {
 
 router.get("/athlete/upcomingBookings", auth, async (req, res) => {
   try {
+    if (!req.query.athleteId) {
+      res.status(400).send("Bad Request: Missing athleteId");
+      return;
+    }
     const athleteId = parseInt(req.query.athleteId, 10);
-    // const query =
-    //   "SELECT B.bookings_id, B.athlete_location, T.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.booking_date, B.total_cost FROM tb_bookings B join tb_therapist T ON B.fk_therapist_id = T.therapist_id WHERE B.fk_athlete_id = $1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour') ORDER BY B.bookings_id DESC";
-    
-    // rewrite query to include therapist's profile picture from tb_authoriation
     const queryWithTherapistProfilePicture = "SELECT B.bookings_id, B.athlete_location, T.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.booking_date, B.total_cost, A.profile_picture_url FROM tb_bookings B join tb_therapist T ON B.fk_therapist_id = T.therapist_id JOIN tb_authorization A ON T.fk_authorization_id = A.authorization_id WHERE B.fk_athlete_id = $1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour') ORDER BY B.bookings_id DESC";
 
     const upcomingBookings = await pool.query(queryWithTherapistProfilePicture, [athleteId]);
@@ -95,6 +99,7 @@ router.post("/", auth, async (req, res) => {
       status,
       payment_intent_id
     } = req.body;
+    //ToDo: validate request body
     const newBooking = await pool.query(
       "INSERT INTO tb_bookings (fk_athlete_id, athlete_location, fk_therapist_id, booking_time, booking_date, hourly_rate, duration, total_cost, paid, status, payment_intent_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING bookings_id, booking_time",
       [
@@ -134,6 +139,10 @@ router.get("/therapist/pastBookings", async (req, res) => {
 
 router.get("/therapist/upcomingBookings", async (req, res) => {
   try {
+    if (!req.query.therapistId) {
+      res.status(400).send("Bad Request: Missing therapistId");
+      return;
+    }
     const therapistId = parseInt(req.query.therapistId, 10);
     // const query =
     //   "SELECT  B.bookings_id,B.athlete_location, A.first_name, B.booking_time, B.confirmation_status, B.status, B.duration, B.booking_date, B.total_cost FROM tb_bookings B join tb_athlete A ON B.fk_athlete_id = A.athlete_id WHERE B.fk_therapist_id=$1 and booking_time >= (CURRENT_TIMESTAMP - interval '1 hour')";
@@ -148,6 +157,10 @@ router.get("/therapist/upcomingBookings", async (req, res) => {
 
 router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id) {
+      res.status(400).send("Bad Request: Missing bookings_id");
+      return;
+    }
     const bookings_id = parseInt(req.params.id, 10);
     const confirmation_status = 1;
     const bookingStatus = await pool.query(
@@ -191,25 +204,15 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
 
 router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id) {
+      res.status(400).send("Bad Request: Missing bookings_id");
+      return;
+    }
     const bookings_id = parseInt(req.params.id, 10);
     const reason = req.body.reason ? req.body.reason : "No reason provided";
     const confirmation_status = 0;
     const suggestedBookingDateTime = req.body.suggestedBookingDateTime ? req.body.suggestedBookingDateTime : null;
     const declinedBooking = await declineBooking(confirmation_status, bookings_id, reason, suggestedBookingDateTime);
-    // const bookingStatus = await pool.query(
-    //   "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
-    //   [confirmation_status, reason, bookings_id]
-    // );
-    // const athleteId = bookingStatus.rows[0].fk_athlete_id;
-    // const athleteEmailQuery = await pool.query(
-    //   "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
-    //   [athleteId]
-    // );
-    // const bookingId = bookingStatus.rows[0].bookings_id;
-    // const therapistNameQuery = await pool.query(
-    //   "SELECT first_name FROM tb_therapist WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
-    //   [bookingId]
-    // );
     res.status(200).json({
       bookings_id: declinedBooking.bookings_id,
       confirmation_status: declinedBooking.confirmation_status,
@@ -217,7 +220,6 @@ router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
       decline_reason: declinedBooking.decline_reason,
       athlete_id: declinedBooking.fk_athlete_id,
     });
-    // emailService.sendBookingDeclinedEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name, reason, suggestedBookingDateTime ? suggestedBookingDateTime : null);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -227,6 +229,10 @@ router.put("/therapist/declineBooking/:id", auth, async (req, res) => {
 // set status to CancelledRefunded if booking_time is more than 24 hours away and CancelledNoRefund if booking_time is less than 24 hours away
 router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id) {
+      res.status(400).send("Bad Request: Missing bookings_id");
+      return;
+    }
     const bookings_id = parseInt(req.params.id, 10);
     const booking = await pool.query(
       "SELECT booking_time, confirmation_time, fk_therapist_id, fk_athlete_id, payment_intent_id, total_cost FROM tb_bookings WHERE bookings_id = $1",
@@ -280,6 +286,10 @@ router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
 // set status to CancelledRefunded
 router.put("/therapist/cancelBooking/:id", auth, async (req, res) => {
   try {
+    if (!req.params.id) {
+      res.status(400).send("Bad Request: Missing bookings_id");
+      return;
+    }
     const bookings_id = parseInt(req.params.id, 10);
     const status = "CancelledRefunded";
     const cancelled = await pool.query(
@@ -330,8 +340,22 @@ router.get("/all", auth, async (req, res) => {
 
 router.get("/therapist/currentBookings", auth, async (req, res) => {
   try {
+    if (!req.query.therapistId) {
+      res.status(400).send("Bad Request: Missing therapistId");
+      return;
+    }
     const therapistId = parseInt(req.query.therapistId, 10);
+    if (!req.query.date) {
+      res.status(400).send("Bad Request: Missing date");
+      return;
+    }
     const date = req.query.date; // date is YYYY-MM-DD
+    // date format check
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!date.match(dateRegex)) {
+      res.status(400).send("Bad Request: Invalid date format. Please use YYYY-MM-DD.");
+      return;
+    }
     const query =
       "SELECT * FROM tb_bookings WHERE fk_therapist_id=$1 AND booking_date=$2 AND confirmation_status=1";
 

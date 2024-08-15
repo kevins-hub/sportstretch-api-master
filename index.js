@@ -47,24 +47,17 @@ app.get("/", (req, res) => {
   res.send("Sportstretch server is running!");
 });
 
-const getTodaysBookings = async () => {
-  // get all bookings from tb_bookings where booking_date = today (YYYY-MM-DD)
-  const today = new Date();
-  today.setDate(today.getDate());
-  const todayString = today.toISOString().split("T")[0];
-  const result = await pool.query(
-    "SELECT * FROM tb_bookings WHERE booking_date = $1",
-    [todayString]
-  );
-  return result.rows;
-};
-
-// const updateBookingStatus = async (bookingId, status) => {
+// possible future implementation for batch charging
+// const getTodaysBookings = async () => {
+//   // get all bookings from tb_bookings where booking_date = today (YYYY-MM-DD)
+//   const today = new Date();
+//   today.setDate(today.getDate());
+//   const todayString = today.toISOString().split("T")[0];
 //   const result = await pool.query(
-//     "UPDATE tb_bookings SET status = $1 WHERE bookings_id = $2",
-//     [status, bookingId]
+//     "SELECT * FROM tb_bookings WHERE booking_date = $1",
+//     [todayString]
 //   );
-//   return result.rowCount === 1;
+//   return result.rows;
 // };
 
 const getAthleteTherapistContactInfo = async (therapist_id, athlete_id) => {
@@ -82,43 +75,6 @@ const getAthleteTherapistContactInfo = async (therapist_id, athlete_id) => {
     athlete: athleteResult.rows[0], // { authorization_id, first_name, email }
   };
 };
-
-// const getTherapistStripeAccountId = async (therapist_id) => {
-//   const result = await pool.query(
-//     "SELECT stripe_account_id FROM tb_therapist WHERE therapist_id = $1",
-//     [therapist_id]
-//   );
-//   return result.rows[0].stripe_account_id;
-// };
-
-// const chargeBooking = async (booking) => {
-//   try {
-//     const bookingId = booking.bookings_id;
-//     const paymentIntentId = booking.payment_intent_id;
-//     const therapistId = booking.fk_therapist_id;
-//     const therapistStripeAccountId = await getTherapistStripeAccountId(
-//       therapistId
-//     );
-//     const paymentIntentCapture = await stripe.paymentIntents.capture(
-//       paymentIntentId,
-//       {},
-//       {
-//         stripeAccount: therapistStripeAccountId,
-//       }
-//     );
-//     console.warn("paymentIntentCapture = ", paymentIntentCapture);
-//     await updateBookingStatus(bookingId, "Paid");
-//     console.warn(
-//       `Payment for booking ID ${bookingId} successful. (Payment Intent: ${paymentIntentCapture})`
-//     );
-//   } catch (error) {
-//     console.error(
-//       `Error capturing payment for booking ID ${booking.bookings_id}:`,
-//       error
-//     );
-//     await updateBookingStatus(booking.bookings_id, "CancelledRefunded");
-//   }
-// };
 
 // cron job to run at 7AM UTC (3AM ET, 12AM PST) and send reminder emails to all therapists and athletes with appointments the next day
 schedule.scheduleJob("0 7 * * *", async () => {

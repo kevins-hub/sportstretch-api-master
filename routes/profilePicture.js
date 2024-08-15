@@ -15,6 +15,9 @@ const pool = new Pool({
 router.get("/:id", auth, async (req, res) => {
     try {
         const authorization_id = req.params.id;
+        if (!authorization_id) {
+            return res.status(400).send("Bad request. Missing id.");
+        }
         const profilePicture = await pool.query(
         "SELECT profile_picture_url FROM tb_authorization WHERE authorization_id = $1",
         [authorization_id]

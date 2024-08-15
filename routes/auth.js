@@ -167,8 +167,8 @@ router.post("/refreshUser/:authId", async (req, res) => {
 // check email available endpoint
 router.post("/checkEmail", async (req, res) => {
   const { email } = req.body;
-
   try {
+    if (!email) return res.status(400).send("Email is required.");
     const user = await pool.query(
       "SELECT email FROM tb_authorization WHERE email = $1",
       [email]
