@@ -31,6 +31,11 @@ router.put("/change-password", async (req, res) => {
       "SELECT * FROM tb_authorization WHERE authorization_id = $1",
       [authId]
     );
+    
+    if (user.rows.length === 0) {
+      return res.status(400).send("User not found.");
+    }
+
     const userRole = user.rows[0].role;
     const dbOldPw = user.rows[0].password;
     const pwMatches = await bcrypt.compare(oldPassword, dbOldPw);
