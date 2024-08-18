@@ -38,6 +38,7 @@ const getConflictingBookings = async (therapistId, bookingDate, bookingTime, dur
     "SELECT bookings_id, booking_time, duration FROM tb_bookings WHERE fk_therapist_id = $1 AND booking_date = $2 AND confirmation_status = -1",
     [therapistId, bookingDate]
   );
+  console.warn("same day bookings = ", conflictingBookings.rows);
   const bookingStartTime = new Date(bookingTime);
   let bookingEndTime = new Date(bookingTime);
   bookingEndTime.setHours(bookingEndTime.getHours() + duration);
@@ -47,6 +48,11 @@ const getConflictingBookings = async (therapistId, bookingDate, bookingTime, dur
     let conflictingBookingEndTime = new Date(conflictingBooking.booking_time);
     conflictingBookingEndTime.setHours(conflictingBookingEndTime.getHours() + conflictingBooking.duration);
     conflictingBookingEndTime.setMinutes(conflictingBookingEndTime.getMinutes() -10); // subtract 10 minutes from meeting duration
+    console.warn("conflicting booking id = ", conflictingBooking.bookings_id);
+    console.warn("bookingStartTime = ", bookingStartTime);
+    console.warn("bookingEndTime = ", bookingEndTime);
+    console.warn("conflictingBookingStartTime = ", conflictingBookingStartTime);
+    console.warn("conflictingBookingEndTime = ", conflictingBookingEndTime);
     return (bookingStartTime >= conflictingBookingStartTime && bookingStartTime <= conflictingBookingEndTime) || (conflictingBookingStartTime >= bookingStartTime && conflictingBookingStartTime <= bookingEndTime);
   });
 }
