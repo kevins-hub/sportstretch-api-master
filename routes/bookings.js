@@ -33,6 +33,24 @@ const declineBooking = async (confirmation_status, bookings_id, reason, suggeste
   return booking;
 };
 
+const getConflictingBookings = async (therapistId, bookingDate, bookingTime, duration) => {
+  const conflictingBookings = await pool.query(
+    "SELECT bookings_id, booking_time, duration FROM tb_bookings WHERE fk_therapist_id = $1 AND booking_date = $2 AND confirmation_status = -1",
+    [therapistId, bookingDate]
+  );
+  const bookingStartTime = new Date(bookingTime);
+  let bookingEndTime = new Date(bookingTime);
+  bookingEndTime.setHours(bookingEndTime.getHours() + duration);
+  bookingEndTime.setMinutes(bookingEndTime.getMinutes() - 5); // subtract 5 minutes from meeting duration
+  return conflictingBookings.rows.filter((conflictingBooking) => {
+    const conflictingBookingStartTime = new Date(conflictingBooking.booking_time);
+    let conflictingBookingEndTime = new Date(conflictingBooking.booking_time);
+    conflictingBookingEndTime.setHours(conflictingBookingEndTime.getHours() + conflictingBooking.duration);
+    conflictingBookingEndTime.setMinutes(conflictingBookingEndTime.getMinutes() -10); // subtract 10 minutes from meeting duration
+    return (bookingStartTime >= conflictingBookingStartTime && bookingStartTime <= conflictingBookingEndTime) || (conflictingBookingStartTime >= bookingStartTime && conflictingBookingStartTime <= bookingEndTime);
+  });
+}
+
 const eligibleFullRefund = (bookingTime, confirmationTime) => {
   // eligible for refund if booking time is more than 24 hours away or confirmation time is within 24 hours of booking time
   const now = new Date().getTime();
@@ -189,6 +207,15 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
       "UPDATE tb_therapist SET accepted_booking_count = accepted_booking_count + 1 WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
       [bookingId]
     );
+
+
+    const conflictingBookings = await getConflictingBookings(booking.fk_therapist_id, booking.booking_date, booking.booking_time, booking.duration);
+    console.warn("conflictingBookings = ", overlappingBookings);
+
+    conflictingBookings.forEach(async (conflictingBooking) => {
+      await declineBooking(0, conflictingBooking.bookings_id, "Booking time overlaps with another confirmed booking. Please try another date or time.");
+    });
+
     res.status(200).json({
       bookings_id: booking.bookings_id,
       confirmation_status: booking.confirmation_status,
