@@ -215,7 +215,7 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
     );
 
 
-    const conflictingBookings = await getConflictingBookings(booking.fk_therapist_id, booking.booking_date, booking.booking_time, booking.duration);
+    const conflictingBookings = await getConflictingBookings(booking.fk_therapist_id, booking.booking_date, booking.booking_time, Number(booking.duration));
     console.warn("conflictingBookings = ", overlappingBookings);
 
     conflictingBookings.forEach(async (conflictingBooking) => {
