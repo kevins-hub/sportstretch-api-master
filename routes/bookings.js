@@ -40,20 +40,28 @@ const getConflictingBookings = async (therapistId, bookingDate, bookingTime, dur
   );
   console.warn("same day bookings = ", conflictingBookings.rows);
   const bookingStartTime = new Date(bookingTime);
+  const bookingStartTimeTs= bookingStartTime.getTime();
   let bookingEndTime = new Date(bookingTime);
-  bookingEndTime.setHours(bookingEndTime.getHours() + Number(duration));
-  bookingEndTime.setMinutes(bookingEndTime.getMinutes() - 5); // subtract 5 minutes from meeting duration
+  let bookingEndTimeTs = bookingEndTime.setHours(bookingEndTime.getHours() + Number(duration));
+  bookingEndTimeTs -= 1; // 
+  //bookingEndTime.setMinutes(bookingEndTime.getMinutes() - 5); // subtract 5 minutes from meeting duration
   return conflictingBookings.rows.filter((conflictingBooking) => {
     const conflictingBookingStartTime = new Date(conflictingBooking.booking_time);
+    const conflictingBookingStartTimeTs = conflictingBookingStartTime.getTime();
     let conflictingBookingEndTime = new Date(conflictingBooking.booking_time);
-    conflictingBookingEndTime.setHours(conflictingBookingEndTime.getHours() + Number(conflictingBooking.duration));
-    conflictingBookingEndTime.setMinutes(conflictingBookingEndTime.getMinutes() -10); // subtract 10 minutes from meeting duration
+    let conflictingBookingEndTimeTs = conflictingBookingEndTime.setHours(conflictingBookingEndTime.getHours() + Number(conflictingBooking.duration));
+    conflictBookingEndTimeTs -= 1;
+    // conflictingBookingEndTime.setMinutes(conflictingBookingEndTime.getMinutes() -10); // subtract 10 minutes from meeting duration
     console.warn("conflicting booking id = ", conflictingBooking.bookings_id);
     console.warn("bookingStartTime = ", bookingStartTime);
+    console.warn("bookingStartTimeTs = ", bookingStartTimeTs);
     console.warn("bookingEndTime = ", bookingEndTime);
+    console.warn("bookingEndTimeTs = ", bookingEndTimeTs);
     console.warn("conflictingBookingStartTime = ", conflictingBookingStartTime);
+    console.warn("conflictBookingStartTimeTs = ", conflictingBookingStartTimeTs);
     console.warn("conflictingBookingEndTime = ", conflictingBookingEndTime);
-    return (bookingStartTime >= conflictingBookingStartTime && bookingStartTime <= conflictingBookingEndTime) || (conflictingBookingStartTime >= bookingStartTime && conflictingBookingStartTime <= bookingEndTime);
+    console.warn("conflictingBookingEndTimeTs = ", conflictingBookingEndTimeTs);
+    return ((bookingStartTimeTs >= conflictingBookingStartTimeTs && bookingStartTimeTs <= conflictingBookingEndTimeTs) || (conflictingBookingStartTimeTs >= bookingStartTimeTs && conflictingBookingStartTimeTs <= bookingEndTimeTs));
   });
 }
 
