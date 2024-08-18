@@ -44,19 +44,19 @@ const getConflictingBookings = async (therapistId, bookingDate, bookingTime, dur
   let bookingEndTime = new Date(bookingTime);
   let bookingEndTimeTs = bookingEndTime.setHours(bookingEndTime.getHours() + Number(duration));
   bookingEndTimeTs -= 1; // 
+  console.warn("bookingStartTime = ", bookingStartTime);
+  console.warn("bookingStartTimeTs = ", bookingStartTimeTs);
+  console.warn("bookingEndTime = ", bookingEndTime);
+  console.warn("bookingEndTimeTs = ", bookingEndTimeTs);
   //bookingEndTime.setMinutes(bookingEndTime.getMinutes() - 5); // subtract 5 minutes from meeting duration
   return conflictingBookings.rows.filter((conflictingBooking) => {
     const conflictingBookingStartTime = new Date(conflictingBooking.booking_time);
     const conflictingBookingStartTimeTs = conflictingBookingStartTime.getTime();
     let conflictingBookingEndTime = new Date(conflictingBooking.booking_time);
     let conflictingBookingEndTimeTs = conflictingBookingEndTime.setHours(conflictingBookingEndTime.getHours() + Number(conflictingBooking.duration));
-    conflictBookingEndTimeTs -= 1;
+    conflictingBookingEndTimeTs -= 1;
     // conflictingBookingEndTime.setMinutes(conflictingBookingEndTime.getMinutes() -10); // subtract 10 minutes from meeting duration
     console.warn("conflicting booking id = ", conflictingBooking.bookings_id);
-    console.warn("bookingStartTime = ", bookingStartTime);
-    console.warn("bookingStartTimeTs = ", bookingStartTimeTs);
-    console.warn("bookingEndTime = ", bookingEndTime);
-    console.warn("bookingEndTimeTs = ", bookingEndTimeTs);
     console.warn("conflictingBookingStartTime = ", conflictingBookingStartTime);
     console.warn("conflictBookingStartTimeTs = ", conflictingBookingStartTimeTs);
     console.warn("conflictingBookingEndTime = ", conflictingBookingEndTime);
