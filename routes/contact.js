@@ -21,6 +21,11 @@ const isValidAthleteEditContactRequestBody = async (body) => {
     return false;
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.match(emailRegex)) {
+    return false;
+  }
+
   // check if email already exists
   const user = await pool.query(
     "SELECT * FROM tb_authorization WHERE email = $1",
@@ -47,6 +52,11 @@ const isValidTherapistEditContactRequestBody = async (body) => {
   }
 
   if (isNaN(authId)) {
+    return false;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.match(emailRegex)) {
     return false;
   }
 
