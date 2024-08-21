@@ -87,6 +87,10 @@ const isValidEditTherapistRequestBody = async (body) => {
     return false;
   }
 
+  const urlRegex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
+  if (!licenseUrl.match(urlRegex)) {
+    return false;
+  }
 
   return true;
 };
