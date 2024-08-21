@@ -158,7 +158,8 @@ router.post("/athlete", async (req, res) => {
 
 router.post("/therapist", async (req, res) => {
   try {
-    if (!isValidRegisterTherapistRequestBody(req.body)) {
+    const isValid = await isValidRegisterTherapistRequestBody(req.body);
+    if (!isValid) {
       return res.status(400).send("Bad request. Invalid request body.");
     }
     const {
