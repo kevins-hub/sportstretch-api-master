@@ -13,6 +13,49 @@ const pool = new Pool({
   },
 });
 
+const isValidBookingRequestBody = (body) => {
+  console.warn("bookingRequestBody = ", body);
+  const {
+    athlete_id,
+    athlete_location,
+    therapist_id,
+    booking_time,
+    booking_date,
+    hourly_rate,
+    duration,
+    total_cost,
+    paid,
+    status,
+    payment_intent_id
+  } = body;
+  if (!athlete_id || !athlete_location || !therapist_id || !booking_time || !booking_date || !hourly_rate || !duration || !total_cost || !paid || !status || !payment_intent_id) {
+    return false;
+  }
+  if (isNaN(athlete_id) || isNaN(therapist_id) || isNaN(hourly_rate) || isNaN(duration) || isNaN(total_cost) || typeof paid !== "boolean") {
+    return false;
+  }
+
+  // check regex YYYY-MM-DD for booking_date
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!booking_date.match(dateRegex)) {
+    return false;
+  }
+
+  // check regex for athlete_location (address)
+  const addressRegex = /^[a-zA-Z0-9\s,'.-]*$/;
+  if (!athlete_location.match(addressRegex)) {
+    return false;
+  }
+
+  // check regex for status (should only contain lowercase and uppercase letters)
+  const statusRegex = /^[a-zA-Z]*$/;
+  if (!status.match(statusRegex)) {
+    return false;
+  }
+
+  return true;
+}
+
 const declineBooking = async (confirmation_status, bookings_id, reason, suggestedBookingDateTime = null) => {
   const bookingStatus = await pool.query(
     "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
@@ -43,24 +86,13 @@ const getConflictingBookings = async (therapistId, bookingDate, bookingTime, dur
   const bookingStartTimeTs= bookingStartTime.getTime();
   let bookingEndTime = new Date(bookingTime);
   let bookingEndTimeTs = bookingEndTime.setHours(bookingEndTime.getHours() + Number(duration));
-  bookingEndTimeTs -= 1; // 
-  console.warn("bookingStartTime = ", bookingStartTime);
-  console.warn("bookingStartTimeTs = ", bookingStartTimeTs);
-  console.warn("bookingEndTime = ", bookingEndTime);
-  console.warn("bookingEndTimeTs = ", bookingEndTimeTs);
-  //bookingEndTime.setMinutes(bookingEndTime.getMinutes() - 5); // subtract 5 minutes from meeting duration
+  bookingEndTimeTs -= 1;
   return conflictingBookings.rows.filter((conflictingBooking) => {
     const conflictingBookingStartTime = new Date(conflictingBooking.booking_time);
     const conflictingBookingStartTimeTs = conflictingBookingStartTime.getTime();
     let conflictingBookingEndTime = new Date(conflictingBooking.booking_time);
     let conflictingBookingEndTimeTs = conflictingBookingEndTime.setHours(conflictingBookingEndTime.getHours() + Number(conflictingBooking.duration));
     conflictingBookingEndTimeTs -= 1;
-    // conflictingBookingEndTime.setMinutes(conflictingBookingEndTime.getMinutes() -10); // subtract 10 minutes from meeting duration
-    console.warn("conflicting booking id = ", conflictingBooking.bookings_id);
-    console.warn("conflictingBookingStartTime = ", conflictingBookingStartTime);
-    console.warn("conflictBookingStartTimeTs = ", conflictingBookingStartTimeTs);
-    console.warn("conflictingBookingEndTime = ", conflictingBookingEndTime);
-    console.warn("conflictingBookingEndTimeTs = ", conflictingBookingEndTimeTs);
     return ((bookingStartTimeTs >= conflictingBookingStartTimeTs && bookingStartTimeTs <= conflictingBookingEndTimeTs) || (conflictingBookingStartTimeTs >= bookingStartTimeTs && conflictingBookingStartTimeTs <= bookingEndTimeTs));
   });
 }
@@ -118,6 +150,10 @@ router.get("/athlete/upcomingBookings", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
+    if (!isValidBookingRequestBody(req.body)) {
+      res.status(400).send("Bad Request: Invalid request body");
+      return;
+    }
     const {
       athlete_id,
       athlete_location,
@@ -131,7 +167,7 @@ router.post("/", auth, async (req, res) => {
       status,
       payment_intent_id
     } = req.body;
-    //ToDo: validate request body
+
     const newBooking = await pool.query(
       "INSERT INTO tb_bookings (fk_athlete_id, athlete_location, fk_therapist_id, booking_time, booking_date, hourly_rate, duration, total_cost, paid, status, payment_intent_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING bookings_id, booking_time",
       [

@@ -11,12 +11,90 @@ const pool = new Pool({
   },
 });
 
+const isValidAthleteEditContactRequestBody = async (body) => {
+  const { authId, email, phone } = body;
+  if (!email || !phone || !authId) {
+    return false;
+  }
+
+  if (isNaN(authId)) {
+    return false;
+  }
+
+  // check if email already exists
+  const user = await pool.query(
+    "SELECT * FROM tb_authorization WHERE email = $1",
+    [email]
+  );
+  if (user.rows.length > 0 && user.rows[0].authorization_id !== authId) {
+    return false;
+  }
+
+  // validate valid phone number with regex
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phone.match(phoneRegex)) {
+    return false;
+  }
+
+  return true;
+}
+
+const isValidTherapistEditContactRequestBody = async (body) => {
+  const { authId, email, phone, addressL1, addressL2, city, state, zipcode } = body;
+
+  if (!email || !phone || !addressL1 || !city || !state || !zipcode || !authId) {
+    return false;
+  }
+
+  if (isNaN(authId)) {
+    return false;
+  }
+
+  // check if email already exists
+  const user = await pool.query(
+    "SELECT * FROM tb_authorization WHERE email = $1",
+    [email]
+  );
+  if (user.rows.length > 0 && user.rows[0].authorization_id !== authId) {
+    return false;
+  }
+
+  // validate valid phone number with regex
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phone.match(phoneRegex)) {
+    return false;
+  }
+
+  // validate zipcode
+  const zipRegex = /^[0-9]{5}$/;
+  if (!zipcode.match(zipRegex)) {
+    return false;
+  }
+
+  const addressRegex = /^[a-zA-Z0-9\s,'.-]*$/;
+  if (!addressL1.match(addressRegex) || !addressL2.match(addressRegex)) {
+    return false;
+  }
+
+  const cityRegex = /^[a-zA-Z\s]*$/;
+  if (!city.match(cityRegex)) {
+    return false;
+  }
+
+  const stateRegex = /^[a-zA-Z\s]*$/;
+  if (!state.match(stateRegex)) {
+    return false;
+  }
+
+  return true;
+}
+
+
 // edit contact info
 router.put("/edit-contact", async (req, res) => {
   const { authId, email, phone, addressL1, addressL2, city, state, zipcode } =
     req.body;
 
-  // ToDo: validate request body
   let user = await pool.query(
     "SELECT * FROM tb_authorization WHERE authorization_id = $1",
     [authId]
@@ -24,6 +102,9 @@ router.put("/edit-contact", async (req, res) => {
   const userRole = user.rows[0].role;
 
   if (userRole === "athlete") {
+    if (await !isValidAthleteEditContactRequestBody(req.body)) {
+      return res.status(400).send("Bad request. Invalid request body.");
+    }
     const emailUpdate = await pool.query(
       "UPDATE tb_authorization SET email = $1 WHERE authorization_id = $2",
       [email, authId]
@@ -38,6 +119,9 @@ router.put("/edit-contact", async (req, res) => {
   }
 
   if (userRole === "therapist") {
+    if (await !isValidTherapistEditContactRequestBody(req.body)) {
+      return res.status(400).send("Bad request. Invalid request body.");
+    }
     const emailUpdate = await pool.query(
       "UPDATE tb_authorization SET email = $1 WHERE authorization_id = $2",
       [email, authId]

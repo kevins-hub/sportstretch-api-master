@@ -11,6 +11,114 @@ const pool = new Pool({
   },
 });
 
+const isValidRegisterTherapistRequestBody = async (body) => {
+  const {
+    fname,
+    lname,
+    email,
+    password,
+    phone,
+    addressL1,
+    addressL2,
+    city,
+    state,
+    zipcode,
+    profession,
+    services,
+    summary,
+    hourlyRate,
+    acceptsHouseCalls,
+    licenseUrl,
+    businessHours,
+    acceptsInClinic,
+    stripeAccountId,
+  } = body;
+
+  if (
+    !fname ||
+    !lname ||
+    !email ||
+    !password ||
+    !phone ||
+    !addressL1 ||
+    !city ||
+    !state ||
+    !zipcode ||
+    !profession ||
+    !services ||
+    !summary ||
+    !hourlyRate ||
+    !licenseUrl ||
+    !businessHours ||
+    !stripeAccountId
+  ) {
+    return false;
+  }
+
+  // validate valid phone number with regex
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phone.match(phoneRegex)) {
+    return false;
+  }
+
+  if (isNaN(hourlyRate)) {
+    return false;
+  }
+
+  // validate zipcode
+  const zipRegex = /^[0-9]{5}$/;
+  if (!zipcode.match(zipRegex)) {
+    return false;
+  }
+
+  const addressRegex = /^[a-zA-Z0-9\s,'.-]*$/;
+  if (!addressL1.match(addressRegex) || !addressL2.match(addressRegex)) {
+    return false;
+  }
+
+  const cityRegex = /^[a-zA-Z\s]*$/;
+  if (!city.match(cityRegex)) {
+    return false;
+  }
+
+  const stateRegex = /^[a-zA-Z\s]*$/;
+  if (!state.match(stateRegex)) {
+    return false;
+  }
+
+  const nameRegex = /^[a-zA-Z\s]*$/;
+  if (!fname.match(nameRegex) || !lname.match(nameRegex)) {
+    return false;
+  }
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!email.match(emailRegex)) {
+    return false;
+  }
+
+  const summaryRegex = /^[\s\S]+$/;
+  if (!summary.match(summaryRegex)) {
+    return false;
+  }
+
+  const servicesRegex = /^[\s\S]+$/;
+  if (!services.match(servicesRegex)) {
+    return false;
+  }
+
+  const professionRegex = /^[a-zA-Z\s]*$/;
+  if (!profession.match(professionRegex)) {
+    return false;
+  }
+
+  const urlRegex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
+  if (!licenseUrl.match(urlRegex)) {
+    return false;
+  }
+
+  return true;
+}
+
 router.post("/athlete", async (req, res) => {
   try {
     const { firstName, lastName, email, mobile, password } = req.body;
@@ -50,6 +158,9 @@ router.post("/athlete", async (req, res) => {
 
 router.post("/therapist", async (req, res) => {
   try {
+    if (!isValidRegisterTherapistRequestBody(req.body)) {
+      return res.status(400).send("Bad request. Invalid request body.");
+    }
     const {
       fname,
       lname,
@@ -71,7 +182,6 @@ router.post("/therapist", async (req, res) => {
       acceptsInClinic,
       stripeAccountId,
     } = req.body;
-    // ToDo: validate request body
     let user = await pool.query(
       "SELECT * FROM tb_authorization WHERE email = $1",
       [email]
