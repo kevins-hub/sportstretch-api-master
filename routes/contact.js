@@ -102,7 +102,8 @@ router.put("/edit-contact", async (req, res) => {
   const userRole = user.rows[0].role;
 
   if (userRole === "athlete") {
-    if (await !isValidAthleteEditContactRequestBody(req.body)) {
+    const isValid = await isValidAthleteEditContactRequestBody(req.body);
+    if (!isValid) {
       return res.status(400).send("Bad request. Invalid request body.");
     }
     const emailUpdate = await pool.query(
@@ -119,7 +120,8 @@ router.put("/edit-contact", async (req, res) => {
   }
 
   if (userRole === "therapist") {
-    if (await !isValidTherapistEditContactRequestBody(req.body)) {
+    const isValid = await isValidTherapistEditContactRequestBody(req.body);
+    if (!isValid) {
       return res.status(400).send("Bad request. Invalid request body.");
     }
     const emailUpdate = await pool.query(
