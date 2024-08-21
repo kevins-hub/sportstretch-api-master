@@ -13,10 +13,83 @@ const pool = new Pool({
   },
 });
 
+const isValidEditTherapistRequestBody = async (body) => {
+  const {
+    addressL1,
+    addressL2,
+    city,
+    state,
+    zipcode,
+    profession,
+    services,
+    summary,
+    hourlyRate,
+    acceptsHouseCalls,
+    licenseUrl,
+    acceptsInClinic,
+  } = body;
+
+  if (
+    !addressL1 ||
+    !city ||
+    !state ||
+    !zipcode ||
+    !profession ||
+    !services ||
+    !summary ||
+    !hourlyRate ||
+    !licenseUrl
+  ) {
+    return false;
+  }
+
+  if (isNaN(hourlyRate)) {
+    return false;
+  }
+
+  // validate zipcode
+  const zipRegex = /^[0-9]{5}$/;
+  if (!zipcode.match(zipRegex)) {
+    return false;
+  }
+
+  const addressRegex = /^[a-zA-Z0-9\s,'.-]*$/;
+  if (!addressL1.match(addressRegex) || !addressL2.match(addressRegex)) {
+    return false;
+  }
+
+  const cityRegex = /^[a-zA-Z\s]*$/;
+  if (!city.match(cityRegex)) {
+    return false;
+  }
+
+  const stateRegex = /^[a-zA-Z\s]*$/;
+  if (!state.match(stateRegex)) {
+    return false;
+  }
+
+  if (summary.length > 250) {
+    return false;
+  }
+
+  const summaryRegex = /^[\s\S]+$/;
+  if (!summary.match(summaryRegex)) {
+    return false;
+  }
+
+  const servicesRegex = /^[\s\S]+$/;
+  if (!services.match(servicesRegex)) {
+    return false;
+  }
+
+
+  return true;
+};
+
 router.get("/all", auth, async (req, res) => {
   try {
     // combine profile_picture_url from tb_authorization into allTherapists call
-    const allTherapists= await pool.query(
+    const allTherapists = await pool.query(
       "SELECT first_name, last_name, mobile, city, state, enabled, average_rating, therapist_id, email, license_infourl, profile_picture_url FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id"
     );
     res.status(200).json(allTherapists.rows);
@@ -105,9 +178,8 @@ router.put("/approve/:id", auth, async (req, res) => {
     );
     res.status(200).json(approved.rows);
     emailService.sendTherapistApprovedEmail(
-      therapistsQueryResult.rows[0].email,
+      therapistsQueryResult.rows[0].email
     );
-    
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -128,9 +200,7 @@ router.put("/disable/:id", auth, async (req, res) => {
       [therapist_id]
     );
     res.status(200).json(denied.rows);
-    emailService.sendTherapistDeclinedEmail(
-      therapistQueryResult.rows[0].email,
-    );
+    emailService.sendTherapistDeclinedEmail(therapistQueryResult.rows[0].email);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -154,11 +224,11 @@ router.put("/toggle/:id", auth, async (req, res) => {
     res.status(200).json(toggled.rows);
     if (enabled === 1) {
       emailService.sendTherapistEnabledEmail(
-        therapistQueryResult.rows[0].email,
+        therapistQueryResult.rows[0].email
       );
     } else {
       emailService.sendTherapistDisabledEmail(
-        therapistQueryResult.rows[0].email,
+        therapistQueryResult.rows[0].email
       );
     }
   } catch (err) {
@@ -187,6 +257,11 @@ router.get("/:id", auth, async (req, res) => {
 router.put("/edit/:id", auth, async (req, res) => {
   try {
     const therapist_id = parseInt(req.params.id, 10);
+    
+    if (!isValidEditTherapistRequestBody(req.body)) {
+      return res.status(400).send("Bad request. Invalid request body.");
+    }
+
     const {
       addressL1,
       addressL2,
@@ -201,7 +276,6 @@ router.put("/edit/:id", auth, async (req, res) => {
       licenseUrl,
       acceptsInClinic,
     } = req.body;
-    //  ToDo: validate request body
 
     const updatedTherapist = await pool.query(
       "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12 WHERE therapist_id = $13 RETURNING *",
