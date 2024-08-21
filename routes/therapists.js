@@ -82,6 +82,11 @@ const isValidEditTherapistRequestBody = async (body) => {
     return false;
   }
 
+  const professionRegex = /^[a-zA-Z\s]*$/;
+  if (!profession.match(professionRegex)) {
+    return false;
+  }
+
 
   return true;
 };
@@ -257,8 +262,8 @@ router.get("/:id", auth, async (req, res) => {
 router.put("/edit/:id", auth, async (req, res) => {
   try {
     const therapist_id = parseInt(req.params.id, 10);
-    
-    if (!isValidEditTherapistRequestBody(req.body)) {
+    const isValid = await isValidEditTherapistRequestBody(req.body);
+    if (!isValid) {
       return res.status(400).send("Bad request. Invalid request body.");
     }
 
