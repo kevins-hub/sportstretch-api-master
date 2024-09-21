@@ -17,6 +17,8 @@ const emailService = require("./utilities/email.js");
 const upload = require("./routes/upload.js");
 const profilePicture = require("./routes/profilePicture.js");
 const schedule = require("node-schedule");
+const sendNotification = require("./utilities/pushNotifications");
+const { send } = require("express/lib/response.js");
 // const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST);
 // const stripeUtil = require("./utilities/stripe.js");
 
@@ -88,6 +90,8 @@ schedule.scheduleJob("0 7 * * *", async () => {
   );
   const sentEmails = new Set();
   const bookings = bookingQueryResult.rows;
+  const athleteId = bookings[0].fk_athlete_id;
+  const therapistId = bookings[0].fk_therapist_id;
   bookings.forEach(async (booking) => {
     try {
       const { therapist, athlete } = await getAthleteTherapistContactInfo(
@@ -107,6 +111,18 @@ schedule.scheduleJob("0 7 * * *", async () => {
           athlete.first_name
         );
         sentEmails.add(athlete.email);
+      }
+      const athletePushSendSuccess = sendNotification("therapist", therapistId, "Reminder: you have appointment(s) scheduled for today! Open SportStretch to view details.");
+      if (!athletePushSendSuccess) {
+        console.error(
+          `Error sending athlete booking reminder push notification for booking: bookingId: ${booking.bookings_id}`
+        );
+      }
+      const therapistPushSendSuccess = sendNotification("athlete", athleteId, "Reminder: you have appointment(s) scheduled for today! Open SportStretch to view details.");
+      if (!therapistPushSendSuccess) {
+        console.error(
+          `Error sending specialist booking reminder push notification for booking: bookingId: ${booking.bookings_id}`
+        );
       }
     } catch (err) {
       console.error(

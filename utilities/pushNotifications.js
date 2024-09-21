@@ -1,5 +1,34 @@
 const { Expo } = require("expo-server-sdk");
 
+const sendNotification = async (userType, id, message) => {
+  try {
+    let token;
+    if (userType === "therapist") {
+      const result = await pool.query(
+        "SELECT expo_push_token from tb_authorization JOIN tb_therapist ON authorization_id = fk_authorization_id where therapist_id = $1",
+        [id]
+      );
+      token = result.rows[0].expo_push_token;
+    } else if (userType === "athlete") {
+      const result = await pool.query(
+        "SELECT expo_push_token from tb_authorization JOIN tb_athlete ON authorization_id = fk_authorization_id where athlete_id = $1",
+        [id]
+      );
+      token = result.rows[0].expo_push_token;
+    }
+    if (!token) {
+      return false;
+    }
+    if (Expo.isExpoPushToken(token)) {
+      await sendPushNotification(token, message);
+    }
+    return true;
+  } catch (err) {
+    console.error(`Internal Server Error: ${err}`);
+    return false;
+  }
+};
+
 const sendPushNotification = async (targetExpoPushToken, message) => {
   const expo = new Expo();
   const chunks = expo.chunkPushNotifications([
@@ -28,4 +57,4 @@ const sendPushNotification = async (targetExpoPushToken, message) => {
   await sendChunks();
 };
 
-module.exports = sendPushNotification;
+module.exports = sendNotification;
