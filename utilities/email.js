@@ -201,7 +201,7 @@ const sendBookingDeclinedEmail = (
 };
 
 const sendBookingReminderEmail = (email, firstName) => {
-  const message = `Hello ${firstName}, this is a reminder that you have one or multiple appointments scheduled for today Please log in to the SportStretch app for more information.`;
+  const message = `Hello ${firstName}, this is a reminder that you have one or multiple appointments scheduled for today. Please log in to the SportStretch app for more information.`;
   const subject = "Appointment(s) Reminder";
   const mailObj = makeEmail(message, email, subject);
   transporter.sendMail(mailObj, (error, info) => {
