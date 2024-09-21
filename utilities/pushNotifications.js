@@ -1,4 +1,13 @@
 const { Expo } = require("expo-server-sdk");
+const Pool = require("pg").Pool;
+const config = require("config");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || config.get("connectionString"),
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
 
 const sendNotification = async (userType, id, message) => {
   try {
