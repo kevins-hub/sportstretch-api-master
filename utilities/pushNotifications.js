@@ -11,6 +11,10 @@ const pool = new Pool({
 
 const sendNotification = async (userType, id, message) => {
   try {
+    if (userType === "admin") {
+      const adminNotificationSuccess = await sendAdminNotification(message);
+      return adminNotificationSuccess;
+    }
     let token;
     if (userType === "therapist") {
       const result = await pool.query(
@@ -34,6 +38,34 @@ const sendNotification = async (userType, id, message) => {
     return true;
   } catch (err) {
     console.error(`Internal Server Error: ${err}`);
+    return false;
+  }
+};
+
+const sendAdminNotification = async (message) => {
+  try {
+    const adminAuthIdResult = await pool.query(
+      "SELECT authorization_id from tb_authorization where role='admin'"
+    );
+
+    const adminAuthIds = adminAuthIdResult.rows.map(
+      (row) => row.authorization_id
+    );
+    adminAuthIds.forEach(async (authId) => {
+      const result = await pool.query(
+        "SELECT expo_push_token from tb_authorization where authorization_id = $1",
+        [authId]
+      );
+      token = result.rows[0].expo_push_token;
+      console.error(
+        "Error sending push notification to admin with authId: ",
+        authId
+      );
+      await sendPushNotification(token, message);
+    });
+    return true;
+  } catch (err) {
+    console.error(`Error sending push notifications to admins: ${err}`);
     return false;
   }
 };

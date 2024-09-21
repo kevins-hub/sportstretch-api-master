@@ -51,4 +51,25 @@ router.post("/notifyAthlete", auth, async (req, res) => {
   }
 });
 
+router.post("/notifyAdmin", auth, async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    const sendNotificationSuccess = await sendNotification(
+      "admin",
+      1,
+      message
+    );
+
+    if (!sendNotificationSuccess) {
+      return res.status(500).send("Internal Server Error.");
+    }
+    return res.status(201).send();
+  } catch (err) {
+    res.status(500).send(`Internal Server Error: ${err}`);
+  }
+}
+);
+
+
 module.exports = router;
