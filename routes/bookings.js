@@ -181,7 +181,7 @@ router.post("/", auth, async (req, res) => {
       bookings_id: newBooking.rows[0].bookings_id,
       booking_time: newBooking.rows[0].booking_time,
     });
-    emailService.sendBookingRequestEmail(therapist_id, athlete_id, newBooking.rows[0].bookings_id);
+    emailService.sendBookingRequestedEmail(therapist_id, athlete_id, newBooking.rows[0].bookings_id);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
