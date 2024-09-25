@@ -227,16 +227,15 @@ router.post("/therapist", async (req, res) => {
         stripeAccountId,
       ]
     );
-
+    emailService.sendTherapistWelcomeEmail(newTherapist.rows[0].therapist_id);
+    emailService.sendTherapistRegisteredEmailToAdmin(newTherapist.rows[0].therapist_id);
     res.status(200).send({
       firstName: fname,
       lastName: lname,
       email: email,
       therapist_id: newTherapist.rows[0].therapist_id,
     });
-    console.warn("newTherapist.rows[0].therapist_id = ", newTherapist.rows[0].therapist_id);
-    emailService.sendTherapistWelcomeEmail(newTherapist.rows[0].therapist_id);
-    emailService.sendTherapistRegisteredEmailToAdmin(newTherapist.rows[0].therapist_id);
+
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
