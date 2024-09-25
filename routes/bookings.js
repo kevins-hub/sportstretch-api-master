@@ -58,7 +58,7 @@ const isValidBookingRequestBody = (body) => {
 
 const declineBooking = async (confirmation_status, bookings_id, reason, suggestedBookingDateTime = null) => {
   const bookingStatus = await pool.query(
-    "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id",
+    "UPDATE tb_bookings SET confirmation_status = $1, decline_reason = $2, confirmation_time = CURRENT_TIMESTAMP WHERE bookings_id = $3 RETURNING bookings_id, confirmation_status, confirmation_time, fk_athlete_id, fk_therapist_id",
     [confirmation_status, reason, bookings_id]
   );
   const booking = bookingStatus.rows[0];

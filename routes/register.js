@@ -234,6 +234,7 @@ router.post("/therapist", async (req, res) => {
       email: email,
       therapist_id: newTherapist.rows[0].therapist_id,
     });
+    console.warn("newTherapist.rows[0].therapist_id = ", newTherapist.rows[0].therapist_id);
     emailService.sendTherapistWelcomeEmail(newTherapist.rows[0].therapist_id);
     emailService.sendTherapistRegisteredEmailToAdmin(newTherapist.rows[0].therapist_id);
   } catch (err) {
