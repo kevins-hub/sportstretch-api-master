@@ -177,14 +177,8 @@ router.put("/approve/:id", auth, async (req, res) => {
       "UPDATE tb_therapist SET enabled = 1,  status = true WHERE therapist_id=$1 RETURNING *",
       [therapist_id]
     );
-    const therapistsQueryResult = await pool.query(
-      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_therapist WHERE therapist_id = $1)",
-      [therapist_id]
-    );
     res.status(200).json(approved.rows);
-    emailService.sendTherapistApprovedEmail(
-      therapistsQueryResult.rows[0].email
-    );
+    emailService.sendTherapistApprovedEmails(therapist_id);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -282,8 +276,10 @@ router.put("/edit/:id", auth, async (req, res) => {
       acceptsInClinic,
     } = req.body;
 
+    // check if profession, services, summary, hourlyRate, acceptsHouseCalls, licenseUrl, acceptsInClinic has been u
+
     const updatedTherapist = await pool.query(
-      "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12, enabled = -1, status = false WHERE therapist_id = $13 RETURNING *",
+      "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12 WHERE therapist_id = $13 RETURNING *",
       [
         addressL1,
         addressL2,

@@ -111,6 +111,7 @@ const isValidRegisterTherapistRequestBody = async (body) => {
     return false;
   }
 
+  // not working?
   const urlRegex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
   if (!licenseUrl.match(urlRegex)) {
     return false;
@@ -151,6 +152,7 @@ router.post("/athlete", async (req, res) => {
       email: email,
       athlete_id: newAthlete.rows[0].athlete_id,
     });
+    emailService.sendAthleteWelcomeEmail(newAthlete.rows[0].athlete_id);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -232,6 +234,8 @@ router.post("/therapist", async (req, res) => {
       email: email,
       therapist_id: newTherapist.rows[0].therapist_id,
     });
+    emailService.sendTherapistWelcomeEmail(newTherapist.rows[0].therapist_id);
+    emailService.sendTherapistRegisteredEmailToAdmin(newTherapist.rows[0].therapist_id);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
