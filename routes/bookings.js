@@ -63,16 +63,9 @@ const declineBooking = async (confirmation_status, bookings_id, reason, suggeste
   );
   const booking = bookingStatus.rows[0];
   const athleteId = booking.fk_athlete_id;
-  const athleteEmailQuery = await pool.query(
-    "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
-    [athleteId]
-  );
+  const therapistId = booking.fk_therapist_id;
   const bookingId = booking.bookings_id;
-  const therapistNameQuery = await pool.query(
-    "SELECT first_name FROM tb_therapist WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
-    [bookingId]
-  );
-  emailService.sendBookingDeclinedEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name, reason, suggestedBookingDateTime ? suggestedBookingDateTime : null);
+  emailService.sendBookingDeclinedEmails(athleteId, bookingId, therapistId, reason, suggestedBookingDateTime ? suggestedBookingDateTime : null);
   return booking;
 };
 
@@ -188,6 +181,7 @@ router.post("/", auth, async (req, res) => {
       bookings_id: newBooking.rows[0].bookings_id,
       booking_time: newBooking.rows[0].booking_time,
     });
+    emailService.sendBookingRequestEmail(therapist_id, athlete_id, newBooking.rows[0].bookings_id);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -244,21 +238,12 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
       return;
     }
     const athleteId = booking.fk_athlete_id;
-    const athleteEmailQuery = await pool.query(
-      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
-      [athleteId]
-    );
     const bookingId = booking.bookings_id;
-    const therapistNameQuery = await pool.query(
-      "SELECT first_name FROM tb_therapist WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
-      [bookingId]
-    );
+    const therapistId = booking.fk_therapist_id;
     const therapistAcceptBookingCountUpdate = await pool.query(
       "UPDATE tb_therapist SET accepted_booking_count = accepted_booking_count + 1 WHERE therapist_id = (SELECT fk_therapist_id FROM tb_bookings WHERE bookings_id = $1)",
       [bookingId]
     );
-
-
     const conflictingBookings = await getConflictingBookings(booking.fk_therapist_id, booking.booking_date, booking.booking_time, booking.duration);
     console.warn("conflictingBookings = ", conflictingBookings);
 
@@ -267,12 +252,13 @@ router.put("/therapist/approveBooking/:id", auth, async (req, res) => {
     });
 
     res.status(200).json({
-      bookings_id: booking.bookings_id,
+      bookings_id: bookingId,
       confirmation_status: booking.confirmation_status,
       confirmation_time: booking.confirmation_time,
-      athlete_id: booking.fk_athlete_id,
+      athlete_id: athleteId,
     });
-    emailService.sendBookingConfirmationEmail(athleteEmailQuery.rows[0].email, bookingId, therapistNameQuery.rows[0].first_name);
+    emailService.sendBookingConfirmationEmail(athleteId, bookingId, therapistId);
+
 
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
@@ -339,21 +325,11 @@ router.put("/athlete/cancelBooking/:id", auth, async (req, res) => {
     );
     const athleteId = booking.rows[0].fk_athlete_id;
     const therapistId = booking.rows[0].fk_therapist_id;
-    const therapistEmailQuery = await pool.query(
-      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_therapist WHERE therapist_id = $1)",
-      [therapistId]
-    );
-    const therapistEmail = therapistEmailQuery.rows[0].email;
-    const athleteFirstNameQuery = await pool.query(
-      "SELECT first_name FROM tb_athlete WHERE athlete_id = $1",
-      [athleteId]
-    );
-    const athleteFirstName = athleteFirstNameQuery.rows[0].first_name;
     res.status(200).json({
       bookings_id: cancelled.rows[0].bookings_id,
       status: cancelled.rows[0].status,
     });
-    emailService.sendAthleteCancelledBookingEmail(therapistEmail, bookings_id, athleteFirstName, status === "CancelledRefunded" ? true : false);
+    emailService.sendAthleteCancelledBookingEmails(therapistId, bookings_id, athleteId, status === "CancelledRefunded" ? true : false);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
@@ -389,15 +365,7 @@ router.put("/therapist/cancelBooking/:id", auth, async (req, res) => {
     );
     const athleteId = booking.rows[0].fk_athlete_id;
     const therapistId = booking.rows[0].fk_therapist_id;
-    const athleteEmailQuery = await pool.query(
-      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_athlete WHERE athlete_id = $1)",
-      [athleteId]
-    );
-    const therapistNameQuery = await pool.query(
-      "SELECT first_name FROM tb_therapist WHERE therapist_id = $1",
-      [therapistId]
-    );
-    emailService.sendTherapistCancelledBookingEmail(athleteEmailQuery.rows[0].email, bookings_id, therapistNameQuery.rows[0].first_name);
+    emailService.sendTherapistCancelledBookingEmails(athleteId, bookings_id, therapistId);
 
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
