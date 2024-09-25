@@ -52,7 +52,12 @@ const getAthleteObj = async (athleteId) => {
     "SELECT a.first_name, a.last_name, auth.email FROM tb_athlete a JOIN tb_authorization auth ON a.fk_authorization_id = auth.authorization_id WHERE athlete_id = $1",
     [athleteId]
   );
-  return athlete.rows[0];
+  const athleteObj = {
+    first_name: athlete.rows[0].first_name,
+    last_name: athlete.rows[0].last_name,
+    email: athlete.rows[0].email,
+  }
+  return athleteObj;
 };
 
 const getTherapistObj = async (therapistId) => {
@@ -60,7 +65,13 @@ const getTherapistObj = async (therapistId) => {
     "SELECT t.first_name, auth.email, t.profession, t.hourly_rate FROM tb_therapist t JOIN tb_authorization auth ON t.fk_authorization_id = auth.authorization_id WHERE therapist_id = $1",
     [therapistId]
   );
-  return therapist.rows[0];
+  const therapistObj = {
+    first_name: therapist.rows[0].first_name,
+    email: therapist.rows[0].email,
+    profession: therapist.rows[0].profession,
+    hourly_rate: therapist.rows[0].hourly_rate,
+  }
+  return therapistObj;
 };
 
 // Send Forgot Password Token email
