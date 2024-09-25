@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const config = require("config");
 const bcrypt = require("bcrypt");
+const emailService = require("../utilities/email.js");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
