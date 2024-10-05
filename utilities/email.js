@@ -10,20 +10,22 @@ const pool = new Pool({
   },
 });
 
-const customerServiceEmail = "kevinkliu.dev@gmail.com"
+// const customerServiceEmail = "kevinkliu.dev@gmail.com"
+const customerServiceEmail = "sportstretchapp@gmail.com"
 
 // Create a transporter using SMTP transport (for Gmail)
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
     user: customerServiceEmail, // Your Gmail email address
-    pass: "owzhodmblenxglaa", // Your Gmail password or an app-specific password
+    // pass: "owzhodmblenxglaa", // Your Gmail password or an app-specific password
+    pass: "ostl gnos iyrs wphd",
   },
 });
 
 const makeEmail = (message, toEmail, subject) => {
   return {
-    from: "kevinkliu.dev@@gmail.com", // Sender email address
+    from: customerServiceEmail, // Sender email address
     to: toEmail, // Recipient email address (can be a comma-separated list for multiple recipients)
     subject: subject, // Email subject
     text: message, // Email content (plain text)
