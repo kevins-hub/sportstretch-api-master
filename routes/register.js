@@ -282,7 +282,7 @@ router.post("/verify-email", async (req, res) => {
     if (user.rows[0]) {
       return res.status(400).send("Email already registered.");
     }
-    emailService.sendVerificationEmail(email, token);
+    await emailService.sendVerificationEmail(token, email);
     res.status(200).send("Email verification sent.");
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
