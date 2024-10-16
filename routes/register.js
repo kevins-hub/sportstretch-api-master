@@ -269,5 +269,25 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
+router.put("/verify-email", async (req, res) => {
+  try {
+    const { email, token } = req.body;
+    if (!email) {
+      return res.status(400).send("Bad request.");
+    }
+    const user = await pool.query(
+      "SELECT * FROM tb_authorization WHERE email = $1",
+      [email]
+    );
+    if (user.rows[0]) {
+      return res.status(400).send("Email already registered.");
+    }
+    emailService.sendVerificationEmail(email, token);
+    res.status(200).send("Email verification sent.");
+  } catch (err) {
+    res.status(500).send(`Internal Server Error: ${err}`);
+  }
+});
+
 
 module.exports = router;
