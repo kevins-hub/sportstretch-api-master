@@ -78,9 +78,9 @@ const getTherapistObj = async (therapistId) => {
 
 // Send Forgot Password Token email
 const sendTokenEmail = (token, email) => {
-  const tokenMessage = `Your code is ${token}. Do not share under any circumstances`;
+  const tokenMessage = `Your forgotten password code is ${token}. Do not share under any circumstances`;
   const tokenSubject = "One-time passcode";
-  const mailObj = makeEmail(tokenMessage, email);
+  const mailObj = makeEmail(tokenMessage, email, tokenSubject);
   transporter.sendMail(mailObj, (error, info) => {
     if (error) {
       console.error("Error sending email:", error);
@@ -90,6 +90,20 @@ const sendTokenEmail = (token, email) => {
     }
   });
 };
+
+const sendVerificationEmail = (token, email) => {
+  const tokenMessage = `Your email verification code is ${token}. Do not share under any circumstances`;
+  const tokenSubject = "One-time passcode";
+  const mailObj = makeEmail(tokenMessage, email, tokenSubject);
+  transporter.sendMail(mailObj, (error, info) => {
+    if (error) {
+      console.error("Error sending email:", error);
+    } else {
+      console.warn("Email sent successfully!");
+      console.warn("Message ID:", info.messageId);
+    }
+  });
+}
 
 // Send Reported Issues Email
 const sendReportIssueEmail = (issue, reporterEmail, bookingId) => {
@@ -571,4 +585,5 @@ module.exports = {
   sendTherapistWelcomeEmail,
   sendAthleteWelcomeEmail,
   sendTherapistRegisteredEmailToAdmin,
+  sendVerificationEmail,
 };
