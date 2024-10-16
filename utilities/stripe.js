@@ -1,4 +1,4 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST);
+const stripe = require("stripe")(process.env.ENVIRONMENT === 'qa' ? process.env.STRIPE_SECRET_TEST : process.env.STRIPE_SECRET);
 const config = require("config");
 
 const CANCELLATION_FEE_AMOUNT = 2000;

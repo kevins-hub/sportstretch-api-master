@@ -2,7 +2,7 @@ const express = require("express");
 // const stripe = require("stripe")(
 //   process.env.STRIPE_SECRET
 // );
-const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST);
+const stripe = require("stripe")(process.env.ENVIRONMENT === 'qa' ? process.env.STRIPE_SECRET_TEST : process.env.STRIPE_SECRET);
 const router = express.Router();
 
 const Pool = require("pg").Pool;
