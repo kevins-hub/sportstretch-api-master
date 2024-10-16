@@ -269,7 +269,7 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
-router.put("/verify-email", async (req, res) => {
+router.post("/verify-email", async (req, res) => {
   try {
     const { email, token } = req.body;
     if (!email) {
