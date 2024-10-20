@@ -165,7 +165,7 @@ router.post("/refreshUser/:authId", async (req, res) => {
 
 
 // check email available endpoint
-router.get("/checkEmail", async (req, res) => {
+router.post("/checkEmail", async (req, res) => {
   const { email } = req.body;
   try {
     if (!email) return res.status(400).send("Email is required.");
