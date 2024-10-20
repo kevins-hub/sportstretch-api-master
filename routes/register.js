@@ -289,5 +289,26 @@ router.post("/verify-email", async (req, res) => {
   }
 });
 
+// check phone available endpoint
+router.post("/checkPhone", async (req, res) => {
+  const { phone } = req.body;
+  try {
+    if (!phone) return res.status(400).send("Phone is required.");
+    const athleteUser = await pool.query(
+      "SELECT mobile FROM tb_athlete WHERE mobile = $1",
+      [phone]
+    );
+    if (athleteUser.rows[0]) return res.status(400).send("Phone already registered.");
+    const therapistUser = await pool.query(
+      "SELECT mobile FROM tb_therapist WHERE mobile = $1",
+      [phone]
+    );
+    if (therapistUser.rows[0]) return res.status(400).send("Phone already registered.");
+    return res.status(200).send("Phone available.");
+  } catch (err) {
+    return res.status(500).send(`Internal Server Error: ${err}`);
+  }
+});
+
 
 module.exports = router;
