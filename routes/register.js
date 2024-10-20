@@ -290,7 +290,7 @@ router.post("/verify-email", async (req, res) => {
 });
 
 // check phone available endpoint
-router.get("/checkPhone", async (req, res) => {
+router.post("/checkPhone", async (req, res) => {
   const { phone } = req.body;
   try {
     if (!phone) return res.status(400).send("Phone is required.");
