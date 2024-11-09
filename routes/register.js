@@ -16,6 +16,7 @@ const isValidRegisterTherapistRequestBody = async (body) => {
   const {
     fname,
     lname,
+    dob,
     email,
     password,
     phone,
@@ -38,6 +39,7 @@ const isValidRegisterTherapistRequestBody = async (body) => {
   if (
     !fname ||
     !lname ||
+    !dob ||
     !email ||
     !password ||
     !phone ||
@@ -123,9 +125,9 @@ const isValidRegisterTherapistRequestBody = async (body) => {
 
 router.post("/athlete", async (req, res) => {
   try {
-    const { firstName, lastName, email, mobile, password } = req.body;
+    const { firstName, lastName, dob, email, mobile, password } = req.body;
 
-    if (!firstName || !lastName || !email || !mobile || !password) {
+    if (!firstName || !lastName || !dob || !email || !mobile || !password) {
       return res.status(400).send("Bad request.");
     }
 
@@ -139,8 +141,8 @@ router.post("/athlete", async (req, res) => {
     const hashed = await bcrypt.hash(password, salt);
 
     user = await pool.query(
-      "INSERT INTO tb_authorization (email, password, role) VALUES ($1, $2, $3) RETURNING authorization_id",
-      [email, hashed, "athlete"]
+      "INSERT INTO tb_authorization (email, password, dob, role) VALUES ($1, $2, $3, $4) RETURNING authorization_id",
+      [email, hashed, dob, "athlete"]
     );
     const newAthlete = await pool.query(
       "INSERT INTO tb_athlete (fk_authorization_id, first_name, last_name, mobile) VALUES ($1, $2, $3, $4) RETURNING athlete_id",
@@ -168,6 +170,7 @@ router.post("/therapist", async (req, res) => {
     const {
       fname,
       lname,
+      dob,
       email,
       password,
       phone,
@@ -199,8 +202,8 @@ router.post("/therapist", async (req, res) => {
     const avg_rating = 0.0;
 
     user = await pool.query(
-      "INSERT INTO tb_authorization (email, password, role) VALUES ($1, $2, $3) RETURNING authorization_id",
-      [email, hashed, "therapist"]
+      "INSERT INTO tb_authorization (email, password, dob, role) VALUES ($1, $2, $3, $4) RETURNING authorization_id",
+      [email, hashed, dob, "therapist"]
     );
     const newTherapist = await pool.query(
       "INSERT INTO tb_therapist (fk_authorization_id, first_name, last_name, mobile, apartment_no, street, city, state, zipcode, enabled, status, average_rating, profession, summary, hourly_rate, services, accepts_house_calls, license_infourl, business_hours, accepts_in_clinic, stripe_account_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21) RETURNING therapist_id",
