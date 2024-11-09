@@ -12,6 +12,20 @@ const pool = new Pool({
   },
 });
 
+const MIN_AGE = 18;
+
+const checkAge = (dob) => {
+  const today = new Date();
+  const birthDate = new Date(dob);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age >= MIN_AGE;
+}
+
+
 const isValidRegisterTherapistRequestBody = async (body) => {
   const {
     fname,
@@ -131,6 +145,10 @@ router.post("/athlete", async (req, res) => {
       return res.status(400).send("Bad request.");
     }
 
+    if (!checkAge(dob)) {
+      return res.status(400).send(`You must be at least ${MIN_AGE} years old.`);
+    }
+
     let user = await pool.query(
       "SELECT * FROM tb_authorization WHERE email = $1",
       [email]
@@ -167,6 +185,7 @@ router.post("/therapist", async (req, res) => {
     if (!isValid) {
       return res.status(400).send("Bad request. Invalid request body.");
     }
+
     const {
       fname,
       lname,
@@ -189,6 +208,11 @@ router.post("/therapist", async (req, res) => {
       acceptsInClinic,
       stripeAccountId,
     } = req.body;
+
+    if (!checkAge(dob)) {
+      return res.status(400).send(`You must be at least ${MIN_AGE} years old.`);
+    }
+
     let user = await pool.query(
       "SELECT * FROM tb_authorization WHERE email = $1",
       [email]
