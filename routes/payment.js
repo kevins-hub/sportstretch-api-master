@@ -117,8 +117,8 @@ router.get("/get-onboard-link/:id", async (req, res) => {
     }
     const accountLink = await stripe.accountLinks.create({
       account: stripe_account_id,
-      refresh_url: "https://example.com/refresh",
-      return_url: "https://example.com/return",
+      refresh_url: "https://kevins-hub.github.io/stripe-redirects/onboarding-refresh.html",
+      return_url: "https://kevins-hub.github.io/stripe-redirects/onboarding-complete.html",
       type: "account_onboarding",
     });
     res.send({
