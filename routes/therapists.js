@@ -87,7 +87,6 @@ const isValidEditTherapistRequestBody = async (body) => {
     return false;
   }
 
-
   return true;
 };
 
@@ -113,12 +112,22 @@ router.get("/enabled/online", auth, async (req, res) => {
         "SELECT therapist_id, fk_authorization_id, first_name, last_name, mobile, apartment_no, street, city, state, zipcode, license_infourl, enabled, status, average_rating, profession, summary, hourly_rate, services, accepts_house_calls, business_hours, accepts_in_clinic, stripe_account_id, accepted_booking_count, accepts_payments, profile_picture_url FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id WHERE enabled = 1 and status = true and state = $1",
         [stateName]
       );
-      res.status(200).json(therapists.rows);
+      const therapistResults = therapists.rows;
+      if (therapistResults.length === 0) {
+        res.status(404).send("No therapists found.");
+      } else {
+        res.status(200).json(therapistResults);
+      }
     } else {
       const therapists = await pool.query(
         "SELECT * FROM tb_therapist WHERE enabled = 1 and status = true"
       );
-      res.status(200).json(therapists.rows);
+      const therapistResults = therapists.rows;
+      if (therapistResults.length === 0) {
+        res.status(404).send("No therapists found.");
+      } else {
+        res.status(200).json(therapistResults);
+      }
     }
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
