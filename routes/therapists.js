@@ -283,12 +283,18 @@ router.put("/edit/:id", auth, async (req, res) => {
       acceptsHouseCalls,
       licenseUrl,
       acceptsInClinic,
+      servicesChanged,
     } = req.body;
 
-    // check if profession, services, summary, hourlyRate, acceptsHouseCalls, licenseUrl, acceptsInClinic has been u
+    // check if profession, services, summary, hourlyRate, acceptsHouseCalls, licenseUrl, acceptsInClinic has been updated
+
+    let newEnabled = 1;
+    if (servicesChanged) {
+      newEnabled = 0;
+    }
 
     const updatedTherapist = await pool.query(
-      "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12 WHERE therapist_id = $13 RETURNING *",
+      "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12, enabled = $13 WHERE therapist_id = $14 RETURNING *",
       [
         addressL1,
         addressL2,
@@ -302,6 +308,7 @@ router.put("/edit/:id", auth, async (req, res) => {
         acceptsHouseCalls,
         licenseUrl,
         acceptsInClinic,
+        newEnabled,
         therapist_id,
       ]
     );
