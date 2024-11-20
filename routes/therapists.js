@@ -291,7 +291,7 @@ router.put("/edit/:id", auth, async (req, res) => {
     let newEnabled = 1;
     let newStatus = "true";
     if (servicesChanged === "true") {
-      newEnabled = 0;
+      newEnabled = -1;
       newStatus = "false";
     }
 
