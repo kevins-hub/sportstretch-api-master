@@ -120,8 +120,8 @@ const sendReportIssueConfirmationEmail = (issue, reporterEmail, bookingId) => {
 const sendTherapistApprovedEmails = async (therapistId) => {
   const therapist = await getTherapistObj(therapistId);
   // send email to therapist
-  const message = `Congratulations! Your application to be a recovery specialist on Sport
-    Stretch has been approved. Once you set up payment, you will be able to accept bookings!`;
+  const message = `Congratulations! Your recovery specialist profile on Sport
+    Stretch has been approved. Please ensure payment setup is complete to accept bookings!`;
   const subject = "Recovery Specialist Application Approved";
   const mailObj = makeEmail(message, therapist.email, subject);
   transporter.sendMail(mailObj, (error, info) => {
