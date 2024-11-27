@@ -147,7 +147,7 @@ router.get("/states", auth, async (req, res) => {
 
 router.put("/setAvailability/:id", auth, async (req, res) => {
   try {
-    if (!req.body.availability_status || !req.params.id) {
+    if (!req.params.id) {
       return res.status(400).send("Bad request. Missing required fields.");
     }
     const therapist_id = parseInt(req.params.id, 10);
