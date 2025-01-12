@@ -49,19 +49,6 @@ app.get("/", (req, res) => {
   res.send("Sportstretch server is running!");
 });
 
-// possible future implementation for batch charging
-// const getTodaysBookings = async () => {
-//   // get all bookings from tb_bookings where booking_date = today (YYYY-MM-DD)
-//   const today = new Date();
-//   today.setDate(today.getDate());
-//   const todayString = today.toISOString().split("T")[0];
-//   const result = await pool.query(
-//     "SELECT * FROM tb_bookings WHERE booking_date = $1",
-//     [todayString]
-//   );
-//   return result.rows;
-// };
-
 const getAthleteTherapistContactInfo = async (therapist_id, athlete_id) => {
   // query tb_authorization, tb_therapist, and tb_athlete to get therapist auth id, therapist first name, therapist email, athlete auth id, athlete first name, and athlete email
   const therapistResult = await pool.query(
