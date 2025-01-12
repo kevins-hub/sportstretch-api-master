@@ -216,7 +216,7 @@ router.put("/disable/:id", auth, async (req, res) => {
 
 router.put("/toggle/:id", auth, async (req, res) => {
   try {
-    if (!req.params.id || !req.body.enabled) {
+    if (!req.params.id) {
       return res.status(400).send("Bad request. Missing required fields.");
     }
     const therapist_id = parseInt(req.params.id, 10);
@@ -283,20 +283,12 @@ router.put("/edit/:id", auth, async (req, res) => {
       acceptsHouseCalls,
       licenseUrl,
       acceptsInClinic,
-      servicesChanged,
     } = req.body;
 
-    // check if profession, services, summary, hourlyRate, acceptsHouseCalls, licenseUrl, acceptsInClinic has been updated
-
-    let newEnabled = 1;
-    let newStatus = "true";
-    if (servicesChanged === true) {
-      newEnabled = -1;
-      newStatus = "false";
-    }
+    // check if profession, services, summary, hourlyRate, acceptsHouseCalls, licenseUrl, acceptsInClinic has been u
 
     const updatedTherapist = await pool.query(
-      "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12, enabled = $13, status = $14 WHERE therapist_id = $15 RETURNING *",
+      "UPDATE tb_therapist SET street = $1, apartment_no = $2, city = $3, state = $4, zipcode = $5, profession = $6, services = $7, summary = $8, hourly_rate = $9, accepts_house_calls = $10, license_infourl = $11, accepts_in_clinic = $12 WHERE therapist_id = $13 RETURNING *",
       [
         addressL1,
         addressL2,
@@ -310,8 +302,6 @@ router.put("/edit/:id", auth, async (req, res) => {
         acceptsHouseCalls,
         licenseUrl,
         acceptsInClinic,
-        newEnabled,
-        newStatus,
         therapist_id,
       ]
     );
