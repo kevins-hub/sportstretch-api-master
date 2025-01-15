@@ -137,7 +137,7 @@ router.get("/enabled/online", auth, async (req, res) => {
 router.get("/states", auth, async (req, res) => {
   try {
     const states = await pool.query(
-      "SELECT DISTINCT state FROM tb_therapist WHERE stripe_account_id IS NOT NULL and enabled = 1 and status = true"
+      "SELECT DISTINCT state FROM tb_therapist WHERE stripe_account_id IS NOT NULL and enabled = 1 and status = true and accepts_payments = true"
     );
     res.status(200).json(states.rows);
   } catch (err) {
