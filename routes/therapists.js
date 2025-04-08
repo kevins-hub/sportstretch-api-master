@@ -94,7 +94,7 @@ router.get("/all", auth, async (req, res) => {
   try {
     // combine profile_picture_url from tb_authorization into allTherapists call
     const allTherapists = await pool.query(
-      "SELECT first_name, last_name, mobile, city, state, enabled, average_rating, services, summary therapist_id, email, license_infourl, profile_picture_url FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id"
+      "SELECT first_name, last_name, mobile, city, state, enabled, average_rating, services, summary, therapist_id, email, license_infourl, profile_picture_url FROM tb_therapist T JOIN tb_authorization A  ON T.fk_authorization_id = A.authorization_id"
     );
     res.status(200).json(allTherapists.rows);
   } catch (err) {
