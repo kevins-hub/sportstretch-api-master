@@ -67,6 +67,7 @@ router.post("/", async (req, res) => {
         business_hours: therapist.rows[0].business_hours,
         accepts_in_clinic: therapist.rows[0].accepts_in_clinic,
         email: email,
+        rc_customer_id: therapist.rows[0].rc_customer_id,
       };
     } else if (user.rows[0].role === "admin") {
       const athlete = await pool.query(
