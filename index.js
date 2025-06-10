@@ -77,9 +77,13 @@ schedule.scheduleJob("0 7 * * *", async () => {
   );
   const sentEmails = new Set();
   const bookings = bookingQueryResult.rows;
-  const athleteId = bookings[0].fk_athlete_id;
-  const therapistId = bookings[0].fk_therapist_id;
-  bookings.forEach(async (booking) => {
+  if (!bookings || bookings.length === 0) {
+    console.log("No bookings found for today.");
+    return;
+  }
+  const athleteId = bookings[0]?.fk_athlete_id;
+  const therapistId = bookings[0]?.fk_therapist_id;
+  bookings?.forEach(async (booking) => {
     try {
       const { therapist, athlete } = await getAthleteTherapistContactInfo(
         booking.fk_therapist_id,
