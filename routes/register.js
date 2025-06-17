@@ -48,6 +48,7 @@ const isValidRegisterTherapistRequestBody = async (body) => {
     businessHours,
     acceptsInClinic,
     stripeAccountId,
+    rcCustomerId
   } = body;
 
   if (
@@ -67,7 +68,8 @@ const isValidRegisterTherapistRequestBody = async (body) => {
     !hourlyRate ||
     !licenseUrl ||
     !businessHours ||
-    !stripeAccountId
+    !stripeAccountId ||
+    !rcCustomerId
   ) {
     return false;
   }
@@ -231,7 +233,7 @@ router.post("/therapist", async (req, res) => {
       [email, hashed, dob, "therapist"]
     );
     const newTherapist = await pool.query(
-      "INSERT INTO tb_therapist (fk_authorization_id, first_name, last_name, mobile, apartment_no, street, city, state, zipcode, enabled, status, average_rating, profession, summary, hourly_rate, services, accepts_house_calls, license_infourl, business_hours, accepts_in_clinic, stripe_account_id, rc_customer_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21) RETURNING therapist_id",
+      "INSERT INTO tb_therapist (fk_authorization_id, first_name, last_name, mobile, apartment_no, street, city, state, zipcode, enabled, status, average_rating, profession, summary, hourly_rate, services, accepts_house_calls, license_infourl, business_hours, accepts_in_clinic, stripe_account_id, rc_customer_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING therapist_id",
       [
         user.rows[0].authorization_id,
         fname,
