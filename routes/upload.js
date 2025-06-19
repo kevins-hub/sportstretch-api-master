@@ -91,4 +91,46 @@ router.post(
   }
 );
 
+//delete profile picture
+router.delete("/profile-picture/:id", auth, async (req, res) => {
+  const authId = req.params.id;
+  if (!authId) {
+    return res.status(400).send("Bad request. Missing id.");
+  }
+
+  try {
+    // Get the current profile picture URL from the database
+    const result = await pool.query(
+      "SELECT profile_picture_url FROM tb_authorization WHERE authorization_id = $1",
+      [authId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("Profile picture not found.");
+    }
+
+    const imageUrl = result.rows[0].profile_picture_url;
+
+    // Delete the image from S3
+    const key = imageUrl.split("/").slice(-2).join("/"); // Extract the key from the URL
+    const deleteParams = {
+      Bucket: bucketName,
+      Key: key,
+    };
+
+    await s3Client.send(new PutObjectCommand(deleteParams));
+
+    // Update the database to remove the profile picture URL
+    await pool.query(
+      "UPDATE tb_authorization SET profile_picture_url = NULL WHERE authorization_id = $1",
+      [authId]
+    );
+
+    res.status(200).send("Profile picture deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting profile picture:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 module.exports = router;
