@@ -6,6 +6,7 @@ const multer = require("multer");
 const multerS3 = require("multer-s3");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { Upload } = require("@aws-sdk/lib-storage");
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
@@ -111,6 +112,8 @@ router.delete("/profile-picture/:id", auth, async (req, res) => {
 
     const imageUrl = result.rows[0].profile_picture_url;
 
+    // imageUrl format: https://sportstretch-dev-uploads.s3.us-west-1.amazonaws.com/profile-pictures/1750301396438-file.jpg
+
     // Delete the image from S3
     const key = imageUrl.split("/").slice(-2).join("/"); // Extract the key from the URL
     const deleteParams = {
@@ -118,7 +121,7 @@ router.delete("/profile-picture/:id", auth, async (req, res) => {
       Key: key,
     };
 
-    await s3Client.send(new PutObjectCommand(deleteParams));
+    await s3Client.send(new DeleteObjectCommand(deleteParams));
 
     // Update the database to remove the profile picture URL
     await pool.query(
