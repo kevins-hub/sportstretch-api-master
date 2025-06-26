@@ -147,6 +147,21 @@ const sendTherapistApprovedEmails = async (therapistId) => {
 
 };
 
+const sendTherapistDeclinedEmail = (email) => {
+  const message = `We regret to inform you that your application to be a recovery specialist on Sport
+  Stretch has been declined.`;
+  const subject = "Recovery Specialist Application Declined";
+  const mailObj = makeEmail(message, email, subject);
+  transporter.sendMail(mailObj, (error, info) => {
+    if (error) {
+      console.error("Error sending email:", error);
+    } else {
+      console.warn("Email sent successfully!");
+      console.warn("Message ID:", info.messageId);
+    }
+  });
+};
+
 const sendTherapistPendingEmail = (email) => {
   const message = `Your account status is currently in pending status. Our team is reviewing your account, please wait for further updates. If you have any questions, please contact customer service.`;
   const subject = "Recovery Specialist Status: Pending";
@@ -463,7 +478,7 @@ module.exports = {
   sendReportIssueEmail,
   sendReportIssueConfirmationEmail,
   sendTherapistApprovedEmails,
-  sendTherapistPendingEmail,
+  sendTherapistDeclinedEmail,
   sendBookingConfirmationEmail,
   sendAthleteCancelledBookingEmails,
   sendTherapistCancelledBookingEmails,
