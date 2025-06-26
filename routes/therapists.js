@@ -193,6 +193,28 @@ router.put("/approve/:id", auth, async (req, res) => {
   }
 });
 
+router.put("/decline/:id", auth, async (req, res) => {
+  try {
+    if (!req.params.id) {
+      return res.status(400).send("Bad request. Missing id.");
+    }
+    const therapist_id = parseInt(req.params.id, 10);
+    const denied = await pool.query(
+      "UPDATE tb_therapist SET enabled = 0 WHERE therapist_id=$1 RETURNING *",
+      [therapist_id]
+    );
+    const therapistQueryResult = await pool.query(
+      "SELECT email FROM tb_authorization WHERE authorization_id = (SELECT fk_authorization_id FROM tb_therapist WHERE therapist_id = $1)",
+      [therapist_id]
+    );
+    res.status(200).json(denied.rows);
+    emailService.sendTherapistDeclinedEmail(therapistQueryResult.rows[0].email);
+  } catch (err) {
+    res.status(500).send(`Internal Server Error: ${err}`);
+  }
+});
+
+
 router.put("/disable/:id", auth, async (req, res) => {
   try {
     if (!req.params.id) {
