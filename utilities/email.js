@@ -478,6 +478,7 @@ module.exports = {
   sendReportIssueEmail,
   sendReportIssueConfirmationEmail,
   sendTherapistApprovedEmails,
+  sendTherapistPendingEmail,
   sendTherapistDeclinedEmail,
   sendBookingConfirmationEmail,
   sendAthleteCancelledBookingEmails,
