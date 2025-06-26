@@ -208,7 +208,7 @@ router.put("/disable/:id", auth, async (req, res) => {
       [therapist_id]
     );
     res.status(200).json(denied.rows);
-    emailService.sendTherapistDeclinedEmail(therapistQueryResult.rows[0].email);
+    emailService.sendTherapistPendingEmail(therapistQueryResult.rows[0].email);
   } catch (err) {
     res.status(500).send(`Internal Server Error: ${err}`);
   }
